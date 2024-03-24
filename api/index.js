@@ -10,13 +10,13 @@ const { globalErrorHandler } = require('../src/utils/errorHandler');
 db.startDB();
 app.use(express.json());
 
-const corsOptions = {
-  // origin:'https://abc.onrender.com',
-  AccessControlAllowOrigin: '*',
-  origin: '*',
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-};
-app.use(cors(corsOptions));
+// const corsOptions = {
+//   // origin:'https://abc.onrender.com',
+//   AccessControlAllowOrigin: '*',
+//   origin: '*',
+//   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+// };
+app.use(cors('*'));
 
 app.use('/api', apiRoutes);
 app.use(globalErrorHandler);
