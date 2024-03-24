@@ -1,7 +1,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 const mongooose = require('mongoose');
 
-const userSchema = mongooose.Schema(
+const userSchema = new mongooose.Schema(
   {
     name: {
       type: String,

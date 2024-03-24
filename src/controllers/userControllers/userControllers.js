@@ -3,7 +3,6 @@ const bcrypt = require('bcrypt');
 const { userModel } = require('../../models');
 const { ErrorHandler } = require('../../utils/errorHandler');
 const { asyncHandler } = require('../../utils/asyncHandler');
-require('dotenv').config();
 const { sendCookieToken } = require('../authControllers');
 
 const addUserController = asyncHandler(async (req, res, next) => {
