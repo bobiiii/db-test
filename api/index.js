@@ -15,7 +15,7 @@ const corsConfig = {
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
 };
 app.use(cors(corsConfig));
-app.options('', cors(corsConfig));
+app.options('*', cors(corsConfig));
 app.use('/api', apiRoutes);
 app.use(globalErrorHandler);
 app.get('/', (req, res) => {
