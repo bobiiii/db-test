@@ -10,7 +10,7 @@ const { globalErrorHandler } = require('../src/utils/errorHandler');
 db.startDB();
 app.use(express.json());
 const corsConfig = {
-  origin: '*S',
+  origin: '*',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
 };
