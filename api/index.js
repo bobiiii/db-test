@@ -22,4 +22,13 @@ app.get('/', (req, res) => {
   res.status(200).json({ message: 'Working fine' });
 });
 
+// only enable it in local environment
+// it will not work on vercel
+
+if (process.env.NODE_ENV === 'development') {
+  app.listen(process.env.PORT, () => {
+    console.log(`server is running on localhost:${process.env.PORT}`);
+  });
+}
+
 module.exports = app;
