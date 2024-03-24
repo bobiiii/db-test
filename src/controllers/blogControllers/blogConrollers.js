@@ -45,12 +45,17 @@ const blog = asyncHandler(async (req, res, next) => {
 });
 
 const getBlogs = asyncHandler(async (req, res, next) => {
-  console.log('blog cntrlr');
-  const blogs = await blogModel.find({});
-  if (!blogs) {
-    next(new ErrorHandler('No blogs found ', 400));
+  try {
+    console.log('blog cntrlr');
+    const blogs = await blogModel.find({});
+    if (!blogs) {
+      next(new ErrorHandler('No blogs found ', 400));
+    }
+    return res.status(200).json({ data: blogs });
+  } catch (error) {
+    console.log('error occured', error);
+    return res.status(200).send('error occured');
   }
-  return res.status(200).json({ data: blogs });
 });
 
 const updateBlogController = asyncHandler(async (req, res, next) => {
