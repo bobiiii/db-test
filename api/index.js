@@ -26,7 +26,6 @@ app.get('/ab', (req, res) => {
   res.status(200).json({ message: 'Working fine' });
 });
 
-
 // function shutDown() {
 //   console.log('Received kill signal, shutting down gracefully');
 //   server.close(() => {
