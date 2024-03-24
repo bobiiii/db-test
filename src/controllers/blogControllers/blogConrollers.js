@@ -46,7 +46,7 @@ const blog = asyncHandler(async (req, res, next) => {
 
 const getBlogs = async (req, res) => {
   try {
-    console.log('blog cntrlr');
+    console.log('blog cntrlr modified');
     const blogs = await blogModel.find({});
     console.log('after blog model');
 
