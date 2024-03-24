@@ -45,6 +45,7 @@ const blog = asyncHandler(async (req, res, next) => {
 });
 
 const getBlogs = asyncHandler(async (req, res, next) => {
+  console.log('blog cntrlr');
   const blogs = await blogModel.find({});
   if (!blogs) {
     next(new ErrorHandler('No blogs found ', 400));
