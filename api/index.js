@@ -16,7 +16,12 @@ app.use(express.json());
 //   origin: '*',
 //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
 // };
-app.use(cors('*'));
+// app.use(cors('*'));
+
+app.use(cors({
+  credentials: true,
+  origin: ['http://localhost:3000', '*'],
+}));
 
 app.use('/api', apiRoutes);
 app.use(globalErrorHandler);
