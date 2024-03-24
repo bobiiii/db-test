@@ -44,38 +44,13 @@ const blog = asyncHandler(async (req, res, next) => {
   return res.status(200).json({ data: findBlog });
 });
 
-const getBlogs = async (req, res) => {
-  try {
-    console.log('blog cntrlr modified');
-    const blogs = await blogModel.find({});
-    console.log('after blog model');
-
-    if (!blogs) {
-      return res.status(200).send('error occured');
-
-      // next(new ErrorHandler('No blogs found ', 400));
-    }
-    console.log('after if stat model');
-    return res.status(200).json({ data: blogs });
-  } catch (error) {
-    console.log('error occured', error);
-    return res.status(200).send('error occured');
+const getBlogs = asyncHandler(async (req, res, next) => {
+  const blogs = await blogModel.find({});
+  if (!blogs) {
+    next(new ErrorHandler('No blogs found ', 400));
   }
-};
-
-// const getBlogs = asyncHandler(async (req, res, next) => {
-//   try {
-//     console.log('blog cntrlr');
-//     const blogs = await blogModel.find({});
-//     if (!blogs) {
-//       next(new ErrorHandler('No blogs found ', 400));
-//     }
-//     return res.status(200).json({ data: blogs });
-//   } catch (error) {
-//     console.log('error occured', error);
-//     return res.status(200).send('error occured');
-//   }
-// });
+  return res.status(200).json({ data: blogs });
+});
 
 const updateBlogController = asyncHandler(async (req, res, next) => {
   const { blogId } = req.params;
