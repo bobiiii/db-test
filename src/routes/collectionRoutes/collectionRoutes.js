@@ -1,11 +1,14 @@
 const express = require('express');
+const multer = require('multer');
 const { collectionControllers } = require('../../controllers');
 const { adminRoutes } = require('../../middlewares');
+
+const upload = multer();
 
 const collectionRoute = express.Router();
 
 collectionRoute.get('/', collectionControllers.getCollections);
-collectionRoute.post('/add-collection', collectionControllers.addCollection);
+collectionRoute.post('/add-collection', upload.any(), collectionControllers.addCollection);
 collectionRoute.get('/:collectionId', collectionControllers.getCollection);
 collectionRoute.put('/update-collection/:collectionId', collectionControllers.updateCollection);
 collectionRoute.delete('/delete-collection/:collectionId', adminRoutes, collectionControllers.deleteCollection);

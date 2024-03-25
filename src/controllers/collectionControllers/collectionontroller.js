@@ -3,15 +3,25 @@
 const { asyncHandler } = require('../../utils/asyncHandler');
 const { ErrorHandler } = require('../../utils/errorHandler');
 const { collectionModel } = require('../../models');
+const { uploadImageToDrive } = require('../uploadImageController');
 
 const addCollection = asyncHandler(async (req, res, next) => {
-  const { collectionName, collectionImage, dropDownImage } = req.body;
-  console.log(req.body);
-  if (!collectionName || !collectionImage || !dropDownImage) {
-    return next(new ErrorHandler('Please send valid fields', 400));
-  }
-  // eslint-disable-next-line max-len
-  const collection = await collectionModel.create({ collectionName, collectionImage, dropDownImage });
+  const { files } = req;
+  const { collectionName } = req.body;
+
+  const collectionImage = files.find((item) => item.fieldname === 'collectionImage');
+  const dropDownImage = files.find((item) => item.fieldname === 'dropDownImage');
+
+  console.log(`file1 img ${collectionImage}\n file2 ${dropDownImage}`);
+
+  const collectionImageId = await uploadImageToDrive(collectionImage);
+  const dropDownImageId = await uploadImageToDrive(dropDownImage);
+
+  const collection = await collectionModel.create({
+    collectionName,
+    collectionImage: collectionImageId,
+    dropDownImage: dropDownImageId,
+  });
 
   if (!collection) {
     return next(new ErrorHandler('unable to create collection', 400));
