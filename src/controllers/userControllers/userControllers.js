@@ -19,7 +19,6 @@ const addUserController = asyncHandler(async (req, res, next) => {
     next(new ErrorHandler('User already exists', 409));
   }
 
-  name = name.toLowerCase();
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const addUserDB = await userModel.create({
