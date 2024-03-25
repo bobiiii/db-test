@@ -37,7 +37,7 @@ const uploadImageToDrive = async (image) => {
       },
       requestBody: {
         name: image.originalname,
-        parents: ['1BVrmiApLtc6gjtNDPXE1Q3TqCmQ1hSeh'],
+        parents: ['1NjYxQczvwAhf4t40G0LNvK4mozeUPEQt'],
       },
       fields: 'id, name',
     });
