@@ -1,20 +1,102 @@
+/* eslint-disable no-unused-vars */
 // eslint-disable-next-line import/no-extraneous-dependencies
+const { google } = require('googleapis');
+const stream = require('stream');
+const path = require('path');
 const { asyncHandler } = require('../../utils/asyncHandler');
 const { blogModel } = require('../../models');
 const { ErrorHandler } = require('../../utils/errorHandler');
 
+const dir = process.cwd();
+const KEYFILEPATH = path.join(dir, '/credentials.json');
+const SCOPES = ['https://www.googleapis.com/auth/drive'];
+
+const auth = new google.auth.GoogleAuth({
+  keyFile: KEYFILEPATH,
+  scopes: SCOPES,
+});
+
+const drive = google.drive({
+  version: 'v3',
+  auth,
+});
+
+// upload Image ======
+const uploadImageToDrive = async (image) => {
+  if (!image.buffer) {
+    console.error('Error: Invalid file object');
+    return null;
+  }
+  try {
+    const bufferImage = new stream.PassThrough();
+    bufferImage.end(image.buffer);
+    const { data } = await drive.files.create({
+      media: {
+        mimeType: image.mimetype,
+        body: bufferImage,
+      },
+      requestBody: {
+        name: image.originalname,
+        parents: ['1BVrmiApLtc6gjtNDPXE1Q3TqCmQ1hSeh'],
+      },
+      fields: 'id, name',
+    });
+
+    return data.id;
+  } catch (error) {
+    console.error('Error uploading image to Google Drive:', error);
+    throw new ErrorHandler('Error uploading image to Google Drive', 500);
+  }
+};
+
+// update Image =======
+const updateImageOnDrive = async (fileId, updatedImage) => {
+  if (!updatedImage.buffer) {
+    console.error('Error: Invalid file object');
+    return null;
+  }
+  try {
+    const bufferImage = new stream.PassThrough();
+    bufferImage.end(updatedImage.buffer);
+    const { data } = await drive.files.update({
+      fileId,
+      media: {
+        mimeType: updatedImage.mimetype,
+        body: bufferImage,
+      },
+      requestBody: {
+        name: updatedImage.originalname,
+      },
+      fields: 'id, name',
+    });
+
+    return data.id;
+  } catch (error) {
+    console.error('Error updating image on Google Drive:', error);
+    throw new ErrorHandler('Error updating image on Google Drive', 500);
+  }
+};
+
 const addBlogController = asyncHandler(async (req, res, next) => {
+  const { files } = req;
+  const image = files[0];
+
+  if (!image) {
+    throw new ErrorHandler('Please upload an image file', 400);
+  }
+
   let {
     // eslint-disable-next-line prefer-const
-    title, date, image, views, content,
+    title, date, views, content,
   } = req.body;
 
-  if (title && date && image && views && content === '') {
+  if (title && date && views && content === '') {
     return next(new ErrorHandler('Please fill all required fields', 400));
   }
 
-  title = title.toLowerCase();
+  const imageId = await uploadImageToDrive(image);
 
+  title = title.toLowerCase();
   const blogExist = await blogModel.findOne({ title });
   if (blogExist) {
     next(new ErrorHandler('Blog already exists', 409));
@@ -23,7 +105,7 @@ const addBlogController = asyncHandler(async (req, res, next) => {
   const addBlogDB = await blogModel.create({
     title,
     date,
-    imageRef: image,
+    imageRef: imageId,
     views,
     content,
   });
@@ -33,6 +115,43 @@ const addBlogController = asyncHandler(async (req, res, next) => {
   return res.status(200).send({ message: 'Blog added successfully', data: addBlogDB });
 });
 
+// const blog = asyncHandler(async (req, res, next) => {
+//   const { blogId } = req.params;
+
+//   const findBlog = await blogModel.findById(blogId);
+//   if (!findBlog) {
+//     return next(new ErrorHandler('Blog doesn\'t exist', 404));
+//   }
+
+//   const {
+//     title, date, imageRef, views, content,
+//   } = findBlog;
+
+//   const { data } = await drive.files.get({
+//     fileId: imageRef,
+//     alt: 'media',
+//   }, { responseType: 'stream' });
+//   console.log(data);
+//   if (!data) {
+//     return next(new ErrorHandler('image not found', 404));
+//   }
+
+//   // data.on('end', () => {
+//   // const response = {
+//   //   title,
+//   //   date,
+//   //   imageRef: data,
+//   //   views,
+//   //   content,
+//   // };
+//   //   return res.status(200).json(response);
+//   // });
+//   // data.on('error', (err) => res.status(500).json({ error: err.message }));
+//   // return data.pipe(res);
+//   return res.send('worked');
+// });
+
+// eslint-disable-next-line consistent-return
 const blog = asyncHandler(async (req, res, next) => {
   const { blogId } = req.params;
 
@@ -41,7 +160,36 @@ const blog = asyncHandler(async (req, res, next) => {
     return next(new ErrorHandler('Blog doesn\'t exist', 404));
   }
 
-  return res.status(200).json({ data: findBlog });
+  const {
+    title, date, imageRef, views, content,
+  } = findBlog;
+
+  const image = await drive.files.get({
+    fileId: imageRef,
+    alt: 'media',
+  }, { responseType: 'stream' });
+  console.log(image);
+  if (!image) {
+    return next(new ErrorHandler('image not found', 404));
+  }
+
+  // const base64Image = Buffer.from(image).toString('base64');
+  // const mimeType = 'jpeg';
+  // const imageURL = `data:image/${mimeType};base64,${base64Image}`;
+  // console.log(imageURL);
+  // // Create the response object with image data
+  // const responseObject = {
+  //   title,
+  //   date,
+  //   imageRef: imageURL,
+  //   views,
+  //   content,
+  // };
+
+  // Send the response
+  return res.status(200).send('send');
+
+  // data.on('error', (err) => next(new ErrorHandler('Error reading image data', 500)));
 });
 
 const getBlogs = asyncHandler(async (req, res, next) => {
@@ -53,10 +201,12 @@ const getBlogs = asyncHandler(async (req, res, next) => {
 });
 
 const updateBlogController = asyncHandler(async (req, res, next) => {
+  const { files } = req;
+  const image = files[0];
   const { blogId } = req.params;
   let {
     // eslint-disable-next-line prefer-const
-    title, date, image, views, content,
+    title, date, imageRef, views, content,
   } = req.body;
 
   const blogExist = await blogModel.findById(blogId);
@@ -64,13 +214,19 @@ const updateBlogController = asyncHandler(async (req, res, next) => {
   if (!blogExist) {
     return next(new ErrorHandler('blog dosent exists', 404));
   }
+  if (image) {
+    const fileId = imageRef;
+    const updatedImage = image;
+    const updateImageId = updateImageOnDrive(fileId, updatedImage);
+    return updateImageId;
+  }
 
   title = title.toLowerCase();
 
   const updateBlogDB = await blogModel.findByIdAndUpdate(blogId, {
     title,
     date,
-    image,
+    imageRef,
     views,
     content,
   });
@@ -84,10 +240,21 @@ const updateBlogController = asyncHandler(async (req, res, next) => {
 
 const deleteBlog = asyncHandler(async (req, res, next) => {
   const { blogId } = req.params;
-  const delBlog = await blogModel.deleteOne({ _id: blogId });
+  const delBlog = await blogModel.findByIdAndDelete(blogId);
   if (!delBlog) {
     next(new ErrorHandler('No blog found ', 400));
   }
+
+  const { imageRef } = delBlog;
+
+  const imgDelete = await drive.files.delete({
+    fileId: imageRef,
+  });
+
+  if (!imgDelete) {
+    return next(new ErrorHandler('Unable to delete blog img', 500));
+  }
+
   return res.status(200).json({ message: 'blog deleted successfully ' });
 });
 
