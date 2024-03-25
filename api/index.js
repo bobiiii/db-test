@@ -20,7 +20,7 @@ app.use(express.json());
 
 app.use(cors({
   credentials: true,
-  origin: ['http://localhost:3000', '*'],
+  origin: ['http://localhost:3000', 'https://sharif-dashboard-w3ml.vercel.app'],
 }));
 
 app.use('/api', apiRoutes);
