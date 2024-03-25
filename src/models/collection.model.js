@@ -8,7 +8,7 @@ const varietySchema = new mongooose.Schema({
   },
   varietyCardImage: {
     type: String,
-    unique: true,
+    require: true,
   },
   fullSlabImage: {
     type: String,
@@ -46,6 +46,7 @@ const collectionSchema = new mongooose.Schema(
       type: String,
       required: true,
       trim: true,
+      unique: true,
     },
     collectionImage: {
       type: String,

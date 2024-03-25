@@ -1,9 +1,9 @@
 const userModel = require('./user.model');
 const blogModel = require('./blog.model');
-const collectionMdel = require('./collection.model');
+const collectionModel = require('./collection.model');
 
 module.exports = {
   userModel,
   blogModel,
-  collectionMdel,
+  collectionModel,
 };
