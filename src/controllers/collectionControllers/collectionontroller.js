@@ -4,58 +4,17 @@ const { ErrorHandler } = require('../../utils/errorHandler');
 const { collectionModel } = require('../../models');
 
 const addCollection = asyncHandler(async (req, res, next) => {
-  let {
-    // eslint-disable-next-line prefer-const
-    collectionName, collectionImage, dropDownImage, variety,
-  } = req.body;
-  console.log(req.body);
-  // eslint-disable-next-line eqeqeq
-  if (collectionName || collectionImage || dropDownImage === '' || variety) {
-    return next(new ErrorHandler('Please fill all required fields', 400));
+  const { collectionName, collectionImage, dropDownImage } = req.body;
+  if (collectionName || collectionImage || dropDownImage !== '') {
+    return next(new ErrorHandler('Please send valid fields', 400));
   }
-
-  const collectionExist = await collectionModel.findOne({ collectionName });
-  if (collectionExist) {
-    next(new ErrorHandler('Collection already exists', 409));
-  }
-
-  const [{
-    varietyName,
-    varietyCardImage,
-    fullSlabImage,
-    closeLookUp,
-    instalLook,
-    description,
-    grip,
-    mate,
-    thickness,
-  }] = variety;
-
   // eslint-disable-next-line max-len
-  if (!varietyName || !varietyCardImage || !fullSlabImage || !closeLookUp || !instalLook || !description || !grip || !mate || !thickness) {
-    return next(new ErrorHandler('please fill all required fills in variety', 400));
-  }
+  const collection = await collectionModel.create({ collectionName, collectionImage, dropDownImage });
 
-  const addCollectionDB = await collectionModel.create({
-    collectionName,
-    collectionImage,
-    dropDownImage,
-    variety: [{
-      varietyName,
-      varietyCardImage,
-      fullSlabImage,
-      closeLookUp,
-      instalLook,
-      description,
-      grip,
-      mate,
-      thickness,
-    }],
-  });
-  if (!addCollectionDB) {
-    next(new ErrorHandler('Unable to add Collection', 500));
+  if (!collection) {
+    return next(new ErrorHandler('unable to create collection', 400));
   }
-  return res.status(200).send({ message: 'Collection added successfully', data: addCollectionDB });
+  return res.status(200).json({ message: 'Created successfully' });
 });
 
 const getCollection = asyncHandler(async (req, res, next) => res.status(200).send('working'));
