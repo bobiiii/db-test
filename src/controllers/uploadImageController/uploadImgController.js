@@ -1,14 +1,19 @@
 const { google } = require('googleapis');
 const stream = require('stream');
-const path = require('path');
+// const path = require('path');
 const { ErrorHandler } = require('../../utils/errorHandler');
 
-const dir = process.cwd();
-const KEYFILEPATH = path.join(dir, '/credentials.json');
+// const dir = process.cwd();
+// const KEYFILEPATH = path.join(dir, '/credentials.json');
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
 const auth = new google.auth.GoogleAuth({
-  keyFile: KEYFILEPATH,
+  credentials: {
+    client_id: process.env.GOOGLE_CLIENT_ID,
+    client_email: process.env.GOOGLE_CLIENT_EMAIL,
+    project_id: process.env.GOOGLE_PROJECT_ID,
+    private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+  },
   scopes: SCOPES,
 });
 
