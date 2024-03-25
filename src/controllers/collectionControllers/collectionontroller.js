@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 const { asyncHandler } = require('../../utils/asyncHandler');
 const { ErrorHandler } = require('../../utils/errorHandler');
@@ -5,7 +6,8 @@ const { collectionModel } = require('../../models');
 
 const addCollection = asyncHandler(async (req, res, next) => {
   const { collectionName, collectionImage, dropDownImage } = req.body;
-  if (collectionName || collectionImage || dropDownImage !== '') {
+  console.log(req.body);
+  if (!collectionName || !collectionImage || !dropDownImage) {
     return next(new ErrorHandler('Please send valid fields', 400));
   }
   // eslint-disable-next-line max-len
@@ -17,10 +19,93 @@ const addCollection = asyncHandler(async (req, res, next) => {
   return res.status(200).json({ message: 'Created successfully' });
 });
 
-const getCollection = asyncHandler(async (req, res, next) => res.status(200).send('working'));
-const updateCollection = asyncHandler(async (req, res, next) => res.status(200).send('working'));
-const deleteCollection = asyncHandler(async (req, res, next) => res.status(200).send('working'));
-const getCollections = asyncHandler(async (req, res, next) => res.status(200).send('working'));
+const getCollection = asyncHandler(async (req, res, next) => {
+  const { collectionId } = req.params;
+  const collection = await collectionModel.findById(collectionId);
+
+  if (!collection) {
+    return next(new ErrorHandler('Collection not found', 404));
+  }
+  return res.status(200).json({ data: collection });
+});
+
+const updateCollection = asyncHandler(async (req, res, next) => {
+  const { collectionId } = req.params;
+  const { collectionName, collectionImage, dropDownImage } = req.body;
+
+  if (collectionName === '' || collectionImage === '' || dropDownImage === '') {
+    return next(new ErrorHandler('Fields cannot be empty', 400));
+  }
+  const updateFields = {};
+  if (collectionName) updateFields.collectionName = collectionName;
+  if (collectionImage) updateFields.collectionImage = collectionImage;
+  if (dropDownImage) updateFields.dropDownImage = dropDownImage;
+
+  const collection = await collectionModel.findByIdAndUpdate(collectionId, updateFields, { new: true });
+
+  if (!collection) {
+    return next(new ErrorHandler('Collection not found', 404));
+  }
+  return res.status(200).json({ data: collection });
+});
+
+const deleteCollection = asyncHandler(async (req, res, next) => {
+  const { collectionId } = req.params;
+  const collection = await collectionModel.findByIdAndDelete(collectionId);
+
+  if (!collection) {
+    return next(new ErrorHandler('Collection not found', 404));
+  }
+  return res.status(200).json({ message: ' Deleted Successfully' });
+});
+
+const getCollections = asyncHandler(async (req, res, next) => {
+  const collections = await collectionModel.find({});
+
+  if (!collections) {
+    return next(new ErrorHandler('Collections not found', 404));
+  }
+  return res.status(200).json({ data: collections });
+});
+
+// eslint-disable-next-line consistent-return
+
+// multer lagayega
+// file lega
+const addCollectionVariety = asyncHandler(async (req, res, next) => {
+  const { collectionId } = req.params;
+  const collection = await collectionModel.findById(collectionId);
+  if (!collection) {
+    return res.status(404).json({ message: 'Collection not found' });
+  }
+
+  const varietyDetails = req.body;
+  collection.variety.push(varietyDetails);
+  const variety = await collection.save();
+  return res.status(200).json({ data: variety });
+});
+
+const updateCollectionVariety = asyncHandler(async (req, res, next) => {
+  const { collectionId } = req.params;
+  const { varietyId } = req.params;
+
+  const collection = await collectionModel.findById(collectionId);
+  if (!collection) {
+    return res.status(404).json({ message: 'Collection not found' });
+  }
+
+  const varietyIndex = collection.variety.findIndex((variety) => variety.id === varietyId);
+  if (varietyIndex === -1) {
+    return res.status(404).json({ message: 'Variety not found' });
+  }
+
+  const updatedVarietyDetails = req.body;
+  // eslint-disable-next-line no-underscore-dangle
+  collection.variety[varietyIndex] = { ...collection.variety[varietyIndex], _id: collection.variety[varietyIndex]._id, ...updatedVarietyDetails };
+  await collection.save();
+  return res.status(200).json(collection);
+  // return res.status(200).json({ data: updatedVariety });
+});
 
 module.exports = {
   addCollection,
@@ -28,4 +113,6 @@ module.exports = {
   updateCollection,
   deleteCollection,
   getCollections,
+  addCollectionVariety,
+  updateCollectionVariety,
 };
