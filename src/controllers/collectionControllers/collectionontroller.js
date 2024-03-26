@@ -8,9 +8,12 @@ const { uploadImageToDrive } = require('../uploadImageController');
 const addCollection = asyncHandler(async (req, res, next) => {
   const { files } = req;
   const { collectionName } = req.body;
+  
 
   const collectionImage = files.find((item) => item.fieldname === 'collectionImage');
   const dropDownImage = files.find((item) => item.fieldname === 'dropDownImage');
+
+
 
   const collectionImageId = await uploadImageToDrive(collectionImage);
   const dropDownImageId = await uploadImageToDrive(dropDownImage);
