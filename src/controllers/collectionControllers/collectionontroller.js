@@ -82,11 +82,11 @@ const addCollectionVariety = asyncHandler(async (req, res, next) => {
   const { collectionId } = req.params;
   const { files } = req;
   console.log(files);
+  console.log(req.body);
   const {
     varietyName, description, grip, mate, thickness,
   } = req.body;
 
-  console.log(req.body);
 
   if (!varietyName || !description || !grip || !mate || !thickness) {
     return next(new ErrorHandler('please fill All rewquired fields', 400));
@@ -124,7 +124,7 @@ const addCollectionVariety = asyncHandler(async (req, res, next) => {
 
   collection.variety.push(varietyDetails);
   const variety = await collection.save();
-  return res.status(200).json({ data: variety });
+  return res.status(200).json(({message:"Variety Updated Successfully"}));
 });
 
 const updateCollectionVariety = asyncHandler(async (req, res, next) => {
@@ -145,7 +145,7 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
   // eslint-disable-next-line no-underscore-dangle
   collection.variety[varietyIndex] = { ...collection.variety[varietyIndex], _id: collection.variety[varietyIndex]._id, ...updatedVarietyDetails };
   await collection.save();
-  return res.status(200).json(collection);
+  return res.status(200).json({message:"Variety Updated Successfully"});
   // return res.status(200).json({ data: updatedVariety });
 });
 
