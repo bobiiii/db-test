@@ -80,17 +80,33 @@ const getCollections = asyncHandler(async (req, res, next) => {
 
 // eslint-disable-next-line consistent-return
 
-// multer lagayega
-// file lega
 const addCollectionVariety = asyncHandler(async (req, res, next) => {
   const { collectionId } = req.params;
+  const { files } = req;
+  const {
+    varietyName, description, grip, mate, thickness,
+  } = req.body;
+
+  if (!varietyName || !description || !grip || !mate || !thickness) {
+    return next(new ErrorHandler('please fill All rewquired fields', 400));
+  }
+  if (files.length === 0) {
+    return next(new ErrorHandler('where is images bro', 400));
+  }
+
+  const varietyCardImage = files.find((item) => item.fieldname === 'varietyCardImage');
+  const fullSlabImage = files.find((item) => item.fieldname === 'fullSlabImage');
+  const closeLookUp = files.find((item) => item.fieldname === 'closeLookUp');
+  const instalLook = files.find((item) => item.fieldname === 'instalLook');
+
+
   const collection = await collectionModel.findById(collectionId);
   if (!collection) {
     return res.status(404).json({ message: 'Collection not found' });
   }
 
-  const varietyDetails = req.body;
-  collection.variety.push(varietyDetails);
+  // const varietyDetails = req.body;
+  // collection.variety.push(varietyDetails);
   const variety = await collection.save();
   return res.status(200).json({ data: variety });
 });

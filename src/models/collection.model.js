@@ -4,39 +4,39 @@ const mongooose = require('mongoose');
 const varietySchema = new mongooose.Schema({
   varietyName: {
     type: String,
-    // require: true,
+    required: true,
   },
   varietyCardImage: {
     type: String,
-    // require: true,
+    required: true,
   },
   fullSlabImage: {
     type: String,
-    // require: true,
+    required: true,
   },
   closeLookUp: {
     type: String,
-    // require: true,
+    required: true,
   },
   instalLook: {
     type: String,
-    // require: true,
+    required: true,
   },
   description: {
     type: String,
-    // require: true,
+    required: true,
   },
   grip: {
     type: String,
-    // require: true,
+    required: true,
   },
   mate: {
     type: String,
-    // required: true,
+    required: true,
   },
   thickness: {
     type: String,
-    require: true,
+    required: true,
   },
 });
 

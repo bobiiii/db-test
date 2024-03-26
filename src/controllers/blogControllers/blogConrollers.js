@@ -18,7 +18,7 @@ const addBlogController = asyncHandler(async (req, res, next) => {
     title, date, views, content,
   } = req.body;
 
-  if (title && date && views && content === '') {
+  if (title || date || views || content === '') {
     return next(new ErrorHandler('Please fill all required fields', 400));
   }
 
