@@ -8,12 +8,9 @@ const { uploadImageToDrive } = require('../uploadImageController');
 const addCollection = asyncHandler(async (req, res, next) => {
   const { files } = req;
   const { collectionName } = req.body;
-  
 
   const collectionImage = files.find((item) => item.fieldname === 'collectionImage');
   const dropDownImage = files.find((item) => item.fieldname === 'dropDownImage');
-
-
 
   const collectionImageId = await uploadImageToDrive(collectionImage);
   const dropDownImageId = await uploadImageToDrive(dropDownImage);
@@ -84,9 +81,12 @@ const getCollections = asyncHandler(async (req, res, next) => {
 const addCollectionVariety = asyncHandler(async (req, res, next) => {
   const { collectionId } = req.params;
   const { files } = req;
+  console.log(files);
   const {
     varietyName, description, grip, mate, thickness,
   } = req.body;
+
+  console.log(req.body);
 
   if (!varietyName || !description || !grip || !mate || !thickness) {
     return next(new ErrorHandler('please fill All rewquired fields', 400));
@@ -100,14 +100,29 @@ const addCollectionVariety = asyncHandler(async (req, res, next) => {
   const closeLookUp = files.find((item) => item.fieldname === 'closeLookUp');
   const instalLook = files.find((item) => item.fieldname === 'instalLook');
 
-
   const collection = await collectionModel.findById(collectionId);
   if (!collection) {
     return res.status(404).json({ message: 'Collection not found' });
   }
 
-  // const varietyDetails = req.body;
-  // collection.variety.push(varietyDetails);
+  const varietyCardImageRef = await uploadImageToDrive(varietyCardImage);
+  const fullSlabImageRef = await uploadImageToDrive(fullSlabImage);
+  const closeLookUpRef = await uploadImageToDrive(closeLookUp);
+  const instalLookRef = await uploadImageToDrive(instalLook);
+
+  const varietyDetails = {
+    varietyName,
+    varietyCardImage: varietyCardImageRef,
+    fullSlabImage: fullSlabImageRef,
+    closeLookUp: closeLookUpRef,
+    instalLook: instalLookRef,
+    description,
+    grip,
+    mate,
+    thickness,
+  };
+
+  collection.variety.push(varietyDetails);
   const variety = await collection.save();
   return res.status(200).json({ data: variety });
 });
