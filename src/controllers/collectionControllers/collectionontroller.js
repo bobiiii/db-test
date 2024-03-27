@@ -99,11 +99,10 @@ const addCollectionVariety = asyncHandler(async (req, res, next) => {
   const { collectionId } = req.params;
   const { files } = req;
   console.log(files);
+  console.log(req.body);
   const {
     varietyName, description, grip, mate, thickness,
   } = req.body;
-
-  console.log(req.body);
 
   if (!varietyName || !description || !grip || !mate || !thickness) {
     return next(new ErrorHandler('please fill All rewquired fields', 400));
@@ -145,7 +144,7 @@ const addCollectionVariety = asyncHandler(async (req, res, next) => {
 
   collection.variety.push(varietyDetails);
   const variety = await collection.save();
-  return res.status(200).json({ data: variety });
+  return res.status(200).json(({ message: 'Variety Created Successfully ' }));
 });
 
 const updateCollectionVariety = asyncHandler(async (req, res, next) => {
@@ -153,15 +152,15 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
 
   const { collectionId } = req.params;
   const { varietyId } = req.params;
-
-  const collection = await collectionModel.findById(collectionId);
+  const collection = await collectionModel.findOne({ 'variety._id': varietyId });
   if (!collection) {
-    return res.status(404).json({ message: 'Collection not found' });
+    return next(new ErrorHandler('Collections not found', 404));
   }
 
-  const varietyIndex = collection.variety.findIndex((variety) => variety.id === varietyId);
+  // eslint-disable-next-line no-underscore-dangle
+  const varietyIndex = collection.variety.findIndex((variety) => variety._id.toString() === varietyId);
   if (varietyIndex === -1) {
-    return res.status(404).json({ message: 'Variety not found' });
+    return next(new ErrorHandler('Variety not found', 404));
   }
   const fullSlabImageFile = files.find((item) => item.fieldname === 'fullSlabImage');
   const varietyCardImageFile = files.find((item) => item.fieldname === 'varietyCardImage');
@@ -244,6 +243,7 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
   collection.variety[varietyIndex] = { ...collection.variety[varietyIndex], _id: collection.variety[varietyIndex]._id, ...updatedVarietyDetails };
   await collection.save();
   return res.status(200).json(collection);
+  // return res.status(200).json({ data: updatedVariety });
 });
 
 module.exports = {
@@ -254,4 +254,5 @@ module.exports = {
   getCollections,
   addCollectionVariety,
   updateCollectionVariety,
+  deleteCollectionVariety,
 };
