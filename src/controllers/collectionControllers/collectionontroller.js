@@ -127,25 +127,23 @@ const addCollectionVariety = asyncHandler(async (req, res, next) => {
 });
 
 const updateCollectionVariety = asyncHandler(async (req, res, next) => {
-  const { collectionId } = req.params;
   const { varietyId } = req.params;
-
-  const collection = await collectionModel.findById(collectionId);
+  const collection = await collectionModel.findOne({ 'variety._id': varietyId });
   if (!collection) {
-    return res.status(404).json({ message: 'Collection not found' });
+    return next(new ErrorHandler('Collections not found', 404));
   }
 
-  const varietyIndex = collection.variety.findIndex((variety) => variety.id === varietyId);
+  // eslint-disable-next-line no-underscore-dangle
+  const varietyIndex = collection.variety.findIndex((variety) => variety._id.toString() === varietyId);
   if (varietyIndex === -1) {
-    return res.status(404).json({ message: 'Variety not found' });
+    return next(new ErrorHandler('Variety not found', 404));
   }
 
   const updatedVarietyDetails = req.body;
-  // eslint-disable-next-line no-underscore-dangle
-  collection.variety[varietyIndex] = { ...collection.variety[varietyIndex], _id: collection.variety[varietyIndex]._id, ...updatedVarietyDetails };
+  collection.variety[varietyIndex] = { ...collection.variety[varietyIndex], ...updatedVarietyDetails };
   await collection.save();
+
   return res.status(200).json({ message: 'Variety Updated Successfully' });
-  // return res.status(200).json({ data: updatedVariety });
 });
 
 const deleteCollectionVariety = asyncHandler(async (req, res, next) => {
@@ -153,14 +151,14 @@ const deleteCollectionVariety = asyncHandler(async (req, res, next) => {
   const collection = await collectionModel.findOne({ 'variety._id': varietyId });
 
   if (!collection) {
-    return res.status(404).json({ message: 'Collection not found' });
+    return next(new ErrorHandler('Collections not found', 404));
   }
 
   const variety = collection.variety.pull(varietyId);
   await collection.save();
 
   if (!variety) {
-    return res.status(404).json({ message: 'Variety not found' });
+    return next(new ErrorHandler('Variety not found', 404));
   }
 
   return res.status(200).json(({ message: 'Variety Deleted Successfully' }));

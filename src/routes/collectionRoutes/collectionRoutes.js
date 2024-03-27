@@ -14,7 +14,7 @@ collectionRoute.put('/update-collection/:collectionId', collectionControllers.up
 collectionRoute.delete('/delete-collection/:collectionId', collectionControllers.deleteCollection);
 // varieties api
 collectionRoute.post('/variety/:collectionId/add-variety', upload.any(), collectionControllers.addCollectionVariety);
-collectionRoute.put('/variety/:collectionId/update-variety/:varietyId', collectionControllers.updateCollectionVariety);
+collectionRoute.put('/variety/update-variety/:varietyId', collectionControllers.updateCollectionVariety);
 collectionRoute.delete('/variety/delete-variety/:varietyId', collectionControllers.deleteCollectionVariety);
 
 module.exports = collectionRoute;
