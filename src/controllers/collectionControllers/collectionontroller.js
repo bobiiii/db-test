@@ -124,8 +124,9 @@ const addCollectionVariety = asyncHandler(async (req, res, next) => {
 
   collection.variety.push(varietyDetails);
   const variety = await collection.save();
-  return res.status(200).json(({message:"Variety Updated Successfully"}));
+  return res.status(200).json(({message:"Variety Created Successfully "}));
 });
+
 
 const updateCollectionVariety = asyncHandler(async (req, res, next) => {
   const { collectionId } = req.params;
