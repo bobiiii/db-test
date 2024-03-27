@@ -50,6 +50,33 @@ const uploadImageToDrive = async (dynamicParameter) => {
   }
 };
 
+const updateImageOnDrive = async (fileId, updatedImage) => {
+  if (!updatedImage.buffer) {
+    console.error('Error: Invalid file object');
+    return null;
+  }
+  try {
+    const bufferImage = new stream.PassThrough();
+    bufferImage.end(updatedImage.buffer);
+    const { data } = await drive.files.update({
+      fileId,
+      media: {
+        mimeType: updatedImage.mimetype,
+        body: bufferImage,
+      },
+      requestBody: {
+        name: updatedImage.originalname,
+      },
+      fields: 'id, name',
+    });
+
+    return data.id;
+  } catch (error) {
+    console.error('Error updating image on Google Drive:', error);
+    throw new ErrorHandler('Error updating image on Google Drive', 500);
+  }
+};
 module.exports = {
   uploadImageToDrive,
+  updateImageOnDrive,
 };

@@ -1,5 +1,6 @@
-const { uploadImageToDrive } = require('./uploadImgController');
+const { uploadImageToDrive, updateImageOnDrive } = require('./uploadImgController');
 
 module.exports = {
   uploadImageToDrive,
+  updateImageOnDrive,
 };
