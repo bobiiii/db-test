@@ -150,7 +150,6 @@ const addCollectionVariety = asyncHandler(async (req, res, next) => {
 const updateCollectionVariety = asyncHandler(async (req, res, next) => {
   const { files } = req;
 
-  const { collectionId } = req.params;
   const { varietyId } = req.params;
   const collection = await collectionModel.findOne({ 'variety._id': varietyId });
   if (!collection) {
@@ -246,6 +245,26 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
   // return res.status(200).json({ data: updatedVariety });
 });
 
+// const updateCollectionVariety = asyncHandler(async (req, res, next) => {
+//   const { varietyId } = req.params;
+//   const collection = await collectionModel.findOne({ 'variety._id': varietyId });
+//   if (!collection) {
+//     return next(new ErrorHandler('Collections not found', 404));
+//   }
+
+//   // eslint-disable-next-line no-underscore-dangle
+//   const varietyIndex = collection.variety.findIndex((variety) => variety._id.toString() === varietyId);
+//   if (varietyIndex === -1) {
+//     return next(new ErrorHandler('Variety not found', 404));
+//   }
+
+//   const updatedVarietyDetails = req.body;
+//   collection.variety[varietyIndex] = { ...collection.variety[varietyIndex], ...updatedVarietyDetails };
+//   await collection.save();
+
+//   return res.status(200).json({ message: 'Variety Updated Successfully' });
+// });
+
 module.exports = {
   addCollection,
   getCollection,
@@ -254,5 +273,4 @@ module.exports = {
   getCollections,
   addCollectionVariety,
   updateCollectionVariety,
-  deleteCollectionVariety,
 };
