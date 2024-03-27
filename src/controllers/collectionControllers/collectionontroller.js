@@ -149,9 +149,9 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
 });
 
 const deleteCollectionVariety = asyncHandler(async (req, res, next) => {
-  const { collectionId, varietyId } = req.params;
+  const { varietyId } = req.params;
+  const collection = await collectionModel.findOne({ 'variety._id': varietyId });
 
-  const collection = await collectionModel.findById(collectionId);
   if (!collection) {
     return res.status(404).json({ message: 'Collection not found' });
   }
