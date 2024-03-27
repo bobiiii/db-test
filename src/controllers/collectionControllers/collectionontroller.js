@@ -87,7 +87,6 @@ const addCollectionVariety = asyncHandler(async (req, res, next) => {
     varietyName, description, grip, mate, thickness,
   } = req.body;
 
-
   if (!varietyName || !description || !grip || !mate || !thickness) {
     return next(new ErrorHandler('please fill All rewquired fields', 400));
   }
@@ -124,9 +123,8 @@ const addCollectionVariety = asyncHandler(async (req, res, next) => {
 
   collection.variety.push(varietyDetails);
   const variety = await collection.save();
-  return res.status(200).json(({message:"Variety Created Successfully "}));
+  return res.status(200).json(({ message: 'Variety Created Successfully ' }));
 });
-
 
 const updateCollectionVariety = asyncHandler(async (req, res, next) => {
   const { collectionId } = req.params;
@@ -146,8 +144,26 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
   // eslint-disable-next-line no-underscore-dangle
   collection.variety[varietyIndex] = { ...collection.variety[varietyIndex], _id: collection.variety[varietyIndex]._id, ...updatedVarietyDetails };
   await collection.save();
-  return res.status(200).json({message:"Variety Updated Successfully"});
+  return res.status(200).json({ message: 'Variety Updated Successfully' });
   // return res.status(200).json({ data: updatedVariety });
+});
+
+const deleteCollectionVariety = asyncHandler(async (req, res, next) => {
+  const { collectionId, varietyId } = req.params;
+
+  const collection = await collectionModel.findById(collectionId);
+  if (!collection) {
+    return res.status(404).json({ message: 'Collection not found' });
+  }
+
+  const variety = collection.variety.pull(varietyId);
+  await collection.save();
+
+  if (!variety) {
+    return res.status(404).json({ message: 'Variety not found' });
+  }
+
+  return res.status(200).json(({ message: 'Variety Deleted Successfully' }));
 });
 
 module.exports = {
@@ -158,4 +174,5 @@ module.exports = {
   getCollections,
   addCollectionVariety,
   updateCollectionVariety,
+  deleteCollectionVariety,
 };
