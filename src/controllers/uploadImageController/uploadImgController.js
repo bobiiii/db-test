@@ -12,7 +12,7 @@ const auth = new google.auth.GoogleAuth({
     client_id: process.env.GOOGLE_CLIENT_ID,
     client_email: process.env.GOOGLE_CLIENT_EMAIL,
     project_id: process.env.GOOGLE_PROJECT_ID,
-    private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+    private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
   },
   scopes: SCOPES,
 });
@@ -76,7 +76,19 @@ const updateImageOnDrive = async (fileId, updatedImage) => {
     throw new ErrorHandler('Error updating image on Google Drive', 500);
   }
 };
+
+const deleteImage = async (imageRef) => {
+  try {
+    await drive.files.delete({
+      fileId: imageRef,
+    });
+  } catch (err) {
+    throw new ErrorHandler('Error Deleting image on Google Drive', 500);
+  }
+};
+
 module.exports = {
   uploadImageToDrive,
   updateImageOnDrive,
+  deleteImage,
 };

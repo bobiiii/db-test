@@ -238,7 +238,6 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
     updatedVarietyDetails.thickness = thickness;
   }
 
-
   // eslint-disable-next-line no-underscore-dangle
   collection.variety[varietyIndex] = { ...collection.variety[varietyIndex], _id: collection.variety[varietyIndex]._id, ...updatedVarietyDetails };
   await collection.save();
