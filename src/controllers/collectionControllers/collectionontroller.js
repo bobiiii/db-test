@@ -265,6 +265,25 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
 //   return res.status(200).json({ message: 'Variety Updated Successfully' });
 // });
 
+const deleteCollectionVariety = asyncHandler(async (req, res, next) => {
+  const { varietyId } = req.params;
+  const collection = await collectionModel.findOne({ 'variety._id': varietyId });
+  console.log(collection);
+  if (!collection) {
+    return res.status(404).json({ message: 'Collection not found' });
+  }
+
+  const variety = collection.variety.pull(varietyId);
+  await collection.save();
+
+  if (!variety) {
+    return res.status(404).json({ message: 'Variety not found' });
+  }
+
+  return res.status(200).json(({ message: 'Variety Deleted Successfully' }));
+});
+
+
 module.exports = {
   addCollection,
   getCollection,
@@ -273,4 +292,5 @@ module.exports = {
   getCollections,
   addCollectionVariety,
   updateCollectionVariety,
+  deleteCollectionVariety,
 };
