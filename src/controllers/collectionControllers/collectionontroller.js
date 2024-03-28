@@ -116,7 +116,7 @@ const addCollectionVariety = asyncHandler(async (req, res, next) => {
   const closeLookUp = files.find((item) => item.fieldname === 'closeLookUp');
   const instalLook = files.find((item) => item.fieldname === 'instalLook');
 
-  if (varietyCardImage || fullSlabImage || closeLookUp || instalLook === undefined) {
+  if (!varietyCardImage || !fullSlabImage || !closeLookUp || !instalLook) {
     return next(new ErrorHandler('please fill All rewquired fields', 400));
   }
 
