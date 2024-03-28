@@ -237,12 +237,12 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
   if (thickness !== undefined) {
     updatedVarietyDetails.thickness = thickness;
   }
-  console.log(updatedVarietyDetails);
+
 
   // eslint-disable-next-line no-underscore-dangle
   collection.variety[varietyIndex] = { ...collection.variety[varietyIndex], _id: collection.variety[varietyIndex]._id, ...updatedVarietyDetails };
   await collection.save();
-  return res.status(200).json(collection);
+  return res.status(200).json({ msg: 'Variety Updated' });
   // return res.status(200).json({ data: updatedVariety });
 });
 
