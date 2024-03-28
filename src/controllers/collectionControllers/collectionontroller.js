@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 /* eslint-disable max-len */
 /* eslint-disable no-unused-vars */
 const { asyncHandler } = require('../../utils/asyncHandler');
@@ -245,44 +246,42 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
   // return res.status(200).json({ data: updatedVariety });
 });
 
-// const updateCollectionVariety = asyncHandler(async (req, res, next) => {
-//   const { varietyId } = req.params;
-//   const collection = await collectionModel.findOne({ 'variety._id': varietyId });
-//   if (!collection) {
-//     return next(new ErrorHandler('Collections not found', 404));
-//   }
-
-//   // eslint-disable-next-line no-underscore-dangle
-//   const varietyIndex = collection.variety.findIndex((variety) => variety._id.toString() === varietyId);
-//   if (varietyIndex === -1) {
-//     return next(new ErrorHandler('Variety not found', 404));
-//   }
-
-//   const updatedVarietyDetails = req.body;
-//   collection.variety[varietyIndex] = { ...collection.variety[varietyIndex], ...updatedVarietyDetails };
-//   await collection.save();
-
-//   return res.status(200).json({ message: 'Variety Updated Successfully' });
-// });
-
 const deleteCollectionVariety = asyncHandler(async (req, res, next) => {
   const { varietyId } = req.params;
   const collection = await collectionModel.findOne({ 'variety._id': varietyId });
   console.log(collection);
   if (!collection) {
-    return res.status(404).json({ message: 'Collection not found' });
+    return next(new ErrorHandler('Collection Not Found', 400));
   }
 
   const variety = collection.variety.pull(varietyId);
   await collection.save();
 
   if (!variety) {
-    return res.status(404).json({ message: 'Variety not found' });
+    return next(new ErrorHandler('variety Not Found', 400));
   }
 
   return res.status(200).json(({ message: 'Variety Deleted Successfully' }));
 });
 
+const getCollectionVariety = asyncHandler(async (req, res, next) => {
+  const { varietyId } = req.params;
+
+  const collection = await collectionModel.findOne({ 'variety._id': varietyId });
+
+  if (!collection) {
+    return next(new ErrorHandler('Collection Not Found', 400));
+  }
+
+  // eslint-disable-next-line no-underscore-dangle
+  const variety = collection.variety.find((variety) => variety._id.toString() === varietyId);
+
+  if (!variety) {
+    return next(new ErrorHandler('variety Not Found', 400));
+  }
+
+  return res.status(200).json({ data: variety });
+});
 
 module.exports = {
   addCollection,
@@ -293,4 +292,5 @@ module.exports = {
   addCollectionVariety,
   updateCollectionVariety,
   deleteCollectionVariety,
+  getCollectionVariety,
 };

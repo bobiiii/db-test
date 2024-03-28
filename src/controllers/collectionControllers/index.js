@@ -1,6 +1,6 @@
 const {
   addCollection, getCollection, deleteCollection, updateCollection, getCollections,
-  addCollectionVariety, updateCollectionVariety, deleteCollectionVariety,
+  addCollectionVariety, updateCollectionVariety, deleteCollectionVariety, getCollectionVariety,
 } = require('./collectionontroller');
 
 module.exports = {
@@ -12,4 +12,5 @@ module.exports = {
   addCollectionVariety,
   updateCollectionVariety,
   deleteCollectionVariety,
+  getCollectionVariety,
 };

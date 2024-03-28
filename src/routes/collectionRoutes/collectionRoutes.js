@@ -16,5 +16,6 @@ collectionRoute.delete('/delete-collection/:collectionId', collectionControllers
 collectionRoute.post('/variety/:collectionId/add-variety', upload.any(), collectionControllers.addCollectionVariety);
 collectionRoute.put('/variety/update-variety/:varietyId', upload.any(), collectionControllers.updateCollectionVariety);
 collectionRoute.delete('/variety/delete-variety/:varietyId', collectionControllers.deleteCollectionVariety);
+collectionRoute.get('/variety/:varietyId', collectionControllers.getCollectionVariety);
 
 module.exports = collectionRoute;
