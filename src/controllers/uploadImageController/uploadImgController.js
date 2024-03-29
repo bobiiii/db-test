@@ -12,7 +12,7 @@ const auth = new google.auth.GoogleAuth({
     client_id: process.env.GOOGLE_CLIENT_ID,
     client_email: process.env.GOOGLE_CLIENT_EMAIL,
     project_id: process.env.GOOGLE_PROJECT_ID,
-    private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+    private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
   },
   scopes: SCOPES,
 });
@@ -50,6 +50,45 @@ const uploadImageToDrive = async (dynamicParameter) => {
   }
 };
 
+const updateImageOnDrive = async (fileId, updatedImage) => {
+  if (!updatedImage.buffer) {
+    console.error('Error: Invalid file object');
+    return null;
+  }
+  try {
+    const bufferImage = new stream.PassThrough();
+    bufferImage.end(updatedImage.buffer);
+    const { data } = await drive.files.update({
+      fileId,
+      media: {
+        mimeType: updatedImage.mimetype,
+        body: bufferImage,
+      },
+      requestBody: {
+        name: updatedImage.originalname,
+      },
+      fields: 'id, name',
+    });
+
+    return data.id;
+  } catch (error) {
+    console.error('Error updating image on Google Drive:', error);
+    throw new ErrorHandler('Error updating image on Google Drive', 500);
+  }
+};
+
+const deleteImage = async (imageRef) => {
+  try {
+    await drive.files.delete({
+      fileId: imageRef,
+    });
+  } catch (err) {
+    throw new ErrorHandler('Error Deleting image on Google Drive', 500);
+  }
+};
+
 module.exports = {
   uploadImageToDrive,
+  updateImageOnDrive,
+  deleteImage,
 };

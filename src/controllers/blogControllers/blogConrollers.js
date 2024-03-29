@@ -3,13 +3,13 @@
 const { asyncHandler } = require('../../utils/asyncHandler');
 const { blogModel } = require('../../models');
 const { ErrorHandler } = require('../../utils/errorHandler');
-const { uploadImageToDrive } = require('../uploadImageController');
+const { uploadImageToDrive, deleteImage, updateImageOnDrive } = require('../uploadImageController');
 
 const addBlogController = asyncHandler(async (req, res, next) => {
   const { files } = req;
-  const image = files[0];
-
-  if (!image) {
+  const imageRef = files.find((item) => item.fieldname === 'imageRef');
+  console.log(files);
+  if (imageRef === undefined) {
     throw new ErrorHandler('Please upload an image file', 400);
   }
 
@@ -18,17 +18,17 @@ const addBlogController = asyncHandler(async (req, res, next) => {
     title, date, views, content,
   } = req.body;
 
-  if (title || date || views || content === '') {
+  if (!title || !date || !views || !content) {
     return next(new ErrorHandler('Please fill all required fields', 400));
   }
-
-  const imageId = await uploadImageToDrive(image);
 
   title = title.toLowerCase();
   const blogExist = await blogModel.findOne({ title });
   if (blogExist) {
     next(new ErrorHandler('Blog already exists', 409));
   }
+
+  const imageId = await uploadImageToDrive(imageRef);
 
   const addBlogDB = await blogModel.create({
     title,
@@ -37,88 +37,12 @@ const addBlogController = asyncHandler(async (req, res, next) => {
     views,
     content,
   });
+
   if (!addBlogDB) {
     next(new ErrorHandler('Unable to add blog', 500));
   }
-  return res.status(200).send({ message: 'Blog added successfully', data: addBlogDB });
+  return res.status(200).send({ msg: 'Blog added successfully' });
 });
-
-// const blog = asyncHandler(async (req, res, next) => {
-//   const { blogId } = req.params;
-
-//   const findBlog = await blogModel.findById(blogId);
-//   if (!findBlog) {
-//     return next(new ErrorHandler('Blog doesn\'t exist', 404));
-//   }
-
-//   const {
-//     title, date, imageRef, views, content,
-//   } = findBlog;
-
-//   const { data } = await drive.files.get({
-//     fileId: imageRef,
-//     alt: 'media',
-//   }, { responseType: 'stream' });
-//   console.log(data);
-//   if (!data) {
-//     return next(new ErrorHandler('image not found', 404));
-//   }
-
-//   // data.on('end', () => {
-//   // const response = {
-//   //   title,
-//   //   date,
-//   //   imageRef: data,
-//   //   views,
-//   //   content,
-//   // };
-//   //   return res.status(200).json(response);
-//   // });
-//   // data.on('error', (err) => res.status(500).json({ error: err.message }));
-//   // return data.pipe(res);
-//   return res.send('worked');
-// });
-
-// eslint-disable-next-line consistent-return
-// const blog = asyncHandler(async (req, res, next) => {
-//   const { blogId } = req.params;
-
-//   const findBlog = await blogModel.findById(blogId);
-//   if (!findBlog) {
-//     return next(new ErrorHandler('Blog doesn\'t exist', 404));
-//   }
-
-//   const {
-//     title, date, imageRef, views, content,
-//   } = findBlog;
-
-//   const image = await drive.files.get({
-//     fileId: imageRef,
-//     alt: 'media',
-//   }, { responseType: 'stream' });
-//   console.log(image);
-//   if (!image) {
-//     return next(new ErrorHandler('image not found', 404));
-//   }
-
-// const base64Image = Buffer.from(image).toString('base64');
-// const mimeType = 'jpeg';
-// const imageURL = `data:image/${mimeType};base64,${base64Image}`;
-// console.log(imageURL);
-// // Create the response object with image data
-// const responseObject = {
-//   title,
-//   date,
-//   imageRef: imageURL,
-//   views,
-//   content,
-// };
-
-// Send the response
-// return res.status(200).send('send');
-
-// data.on('error', (err) => next(new ErrorHandler('Error reading image data', 500)));
-// });
 
 const getBlogs = asyncHandler(async (req, res, next) => {
   const blogs = await blogModel.find({});
@@ -129,67 +53,71 @@ const getBlogs = asyncHandler(async (req, res, next) => {
 });
 
 const updateBlogController = asyncHandler(async (req, res, next) => {
-  const { files } = req;
-  const image = files[0];
   const { blogId } = req.params;
-  let {
-    // eslint-disable-next-line prefer-const
-    title, date, imageRef, views, content,
+  const { files } = req;
+  const {
+    title, date, views, content,
   } = req.body;
 
-  const blogExist = await blogModel.findById(blogId);
+  const imageRef = files.find((item) => item.fieldname === 'imageRef');
 
-  if (!blogExist) {
-    return next(new ErrorHandler('blog dosent exists', 404));
-  }
-  if (image) {
-    const fileId = imageRef;
-    const updatedImage = image;
-    // const updateImageId = updateImageOnDrive(fileId, updatedImage);
-    // return updateImageId;
+  const verifyBlogId = await blogModel.findById(blogId);
+  if (!verifyBlogId) {
+    return next(new ErrorHandler('Blog Not FOund', 400));
   }
 
-  title = title.toLowerCase();
-
-  const updateBlogDB = await blogModel.findByIdAndUpdate(blogId, {
-    title,
-    date,
-    imageRef,
-    views,
-    content,
-  });
-
-  if (!updateBlogDB) {
-    return next(new ErrorHandler('Unable to update blog', 500));
+  const updateFields = {};
+  if (title !== undefined) {
+    updateFields.title = title;
+  }
+  if (date !== undefined) {
+    updateFields.date = date;
+  }
+  if (views !== undefined) {
+    updateFields.views = views;
+  }
+  if (content !== undefined) {
+    updateFields.content = content;
+  }
+  if (imageRef !== undefined) {
+    const fileId = verifyBlogId.imageRef;
+    const updatedImg = await updateImageOnDrive(fileId, imageRef);
+    updateFields.imageRef = updatedImg;
   }
 
-  return res.status(200).json({ message: 'blog updated successfully', UpdtData: updateBlogDB });
+  const blog = await blogModel.findByIdAndUpdate(blogId, updateFields, { new: true });
+
+  return res.status(200).json({ msg: 'blog Update Sucessfully' });
 });
 
-// const deleteBlog = asyncHandler(async (req, res, next) => {
-//   const { blogId } = req.params;
-//   const delBlog = await blogModel.findByIdAndDelete(blogId);
-//   if (!delBlog) {
-//     next(new ErrorHandler('No blog found ', 400));
-//   }
+const blog = asyncHandler(async (req, res, next) => {
+  const { blogId } = req.params;
+  const singleBlog = await blogModel.findById(blogId);
 
-//   const { imageRef } = delBlog;
+  if (!singleBlog) {
+    return next(new ErrorHandler('Blog not found', 404));
+  }
+  return res.status(200).json({ data: singleBlog });
+});
 
-//   const imgDelete = await drive.files.delete({
-//     fileId: imageRef,
-//   });
+const deleteBlog = asyncHandler(async (req, res, next) => {
+  const { blogId } = req.params;
+  const delBlog = await blogModel.findById(blogId);
+  if (!delBlog) {
+    next(new ErrorHandler('No blog found ', 400));
+  }
 
-//   if (!imgDelete) {
-//     return next(new ErrorHandler('Unable to delete blog img', 500));
-//   }
+  const { imageRef } = delBlog;
+  await deleteImage(imageRef);
+  await blogModel.findByIdAndDelete(blogId);
 
-//   return res.status(200).json({ message: 'blog deleted successfully ' });
-// });
+  return res.status(200).json({ message: 'blog deleted successfully ' });
+});
 
 module.exports = {
   addBlogController,
-  // blog,
+  blog,
   getBlogs,
   updateBlogController,
-  // deleteBlog,
+  deleteBlog,
 };
