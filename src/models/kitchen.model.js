@@ -24,7 +24,7 @@ const kitchenSchema = new mongooose.Schema(
       trim: true,
     },
     cardImage: {
-      type: Date,
+      type: String,
       required: true,
       trim: true,
     },
