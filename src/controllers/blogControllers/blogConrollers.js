@@ -8,7 +8,7 @@ const { uploadImageToDrive, deleteImage, updateImageOnDrive } = require('../uplo
 const addBlogController = asyncHandler(async (req, res, next) => {
   const { files } = req;
   const imageRef = files.find((item) => item.fieldname === 'imageRef');
-
+  console.log(files);
   if (imageRef === undefined) {
     throw new ErrorHandler('Please upload an image file', 400);
   }
@@ -109,6 +109,7 @@ const deleteBlog = asyncHandler(async (req, res, next) => {
 
   const { imageRef } = delBlog;
   await deleteImage(imageRef);
+  await blogModel.findByIdAndDelete(blogId);
 
   return res.status(200).json({ message: 'blog deleted successfully ' });
 });
