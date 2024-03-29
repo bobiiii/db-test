@@ -4,7 +4,7 @@
 const { asyncHandler } = require('../../utils/asyncHandler');
 const { ErrorHandler } = require('../../utils/errorHandler');
 const { collectionModel } = require('../../models');
-const { uploadImageToDrive, updateImageOnDrive } = require('../uploadImageController');
+const { uploadImageToDrive, updateImageOnDrive, deleteImage } = require('../uploadImageController');
 
 const addCollection = asyncHandler(async (req, res, next) => {
   const { files } = req;
@@ -77,11 +77,17 @@ const updateCollection = asyncHandler(async (req, res, next) => {
 
 const deleteCollection = asyncHandler(async (req, res, next) => {
   const { collectionId } = req.params;
-  const collection = await collectionModel.findByIdAndDelete(collectionId);
+  const collection = await collectionModel.findById(collectionId);
 
   if (!collection) {
     return next(new ErrorHandler('Collection not found', 404));
   }
+
+  const { collectionImage, dropDownImage } = collection;
+  await deleteImage(collectionImage);
+  await deleteImage(dropDownImage);
+
+  await collectionModel.findByIdAndDelete(collectionId);
   return res.status(200).json({ message: ' Deleted Successfully' });
 });
 
@@ -248,15 +254,25 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
 const deleteCollectionVariety = asyncHandler(async (req, res, next) => {
   const { varietyId } = req.params;
   const collection = await collectionModel.findOne({ 'variety._id': varietyId });
-  console.log(collection);
+
   if (!collection) {
-    return next(new ErrorHandler('Collection Not Found', 400));
+    return next(new ErrorHandler('Collection variety Not Found', 400));
   }
 
-  const variety = collection.variety.pull(varietyId);
+  const findVariety = collection.variety.find((item) => item.id === varietyId);
+  const {
+    varietyCardImage, fullSlabImage, closeLookUp, instalLook, _id,
+  } = findVariety;
+
+  await deleteImage(varietyCardImage);
+  await deleteImage(fullSlabImage);
+  await deleteImage(closeLookUp);
+  await deleteImage(instalLook);
+
+  const varietyDelete = collection.variety.pull(_id);
   await collection.save();
 
-  if (!variety) {
+  if (!varietyDelete) {
     return next(new ErrorHandler('variety Not Found', 400));
   }
 
