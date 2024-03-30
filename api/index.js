@@ -11,8 +11,8 @@ const { globalErrorHandler } = require('../src/utils/errorHandler');
 
 db.startDB();
 app.use(express.json());
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
-app.use(bodyParser.json({ limit: '50mb', extended: true }));
+app.use(bodyParser.urlencoded({ limit: '5000mb', extended: true }));
+app.use(bodyParser.json({ limit: '5000mb', extended: true }));
 // const corsOptions = {
 //   // origin:'https://abc.onrender.com',
 //   AccessControlAllowOrigin: '*',
