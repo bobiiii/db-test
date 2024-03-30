@@ -3,15 +3,12 @@ const mongooose = require('mongoose');
 const colorsSchema = new mongooose.Schema({
   colorName: {
     type: String,
-    required: true,
   },
   colorCardImage: {
     type: String,
-    required: true,
   },
   mainImage: {
     type: String,
-    required: true,
   },
 });
 
@@ -21,6 +18,7 @@ const bathroomSchema = new mongooose.Schema(
       type: String,
       required: true,
       trim: true,
+      unique: true,
     },
     cardImage: {
       type: String,

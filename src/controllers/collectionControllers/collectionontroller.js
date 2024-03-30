@@ -13,6 +13,16 @@ const addCollection = asyncHandler(async (req, res, next) => {
   const collectionImage = files.find((item) => item.fieldname === 'collectionImage');
   const dropDownImage = files.find((item) => item.fieldname === 'dropDownImage');
 
+  if (!collectionName || !collectionImage || !dropDownImage) {
+    return next(new ErrorHandler('please fill All rewquired fields', 400));
+  }
+
+  const verifyCollection = await collectionModel.findOne({ collectionName });
+
+  if (verifyCollection) {
+    return next(new ErrorHandler('Collection Already Exist', 400));
+  }
+
   const collectionImageId = await uploadImageToDrive(collectionImage);
   const dropDownImageId = await uploadImageToDrive(dropDownImage);
 
@@ -58,6 +68,7 @@ const updateCollection = asyncHandler(async (req, res, next) => {
   if (collectionImageFile !== undefined) {
     const fileId = verifyCollectionId.collectionImage;
     const updatedImg = await updateImageOnDrive(fileId, collectionImageFile);
+    console.log(updatedImg);
     updateFields.collectionImage = updatedImg;
   }
   if (dropDownImageFile !== undefined) {
@@ -65,12 +76,11 @@ const updateCollection = asyncHandler(async (req, res, next) => {
     const updatedImg = await updateImageOnDrive(fileId, dropDownImageFile);
     updateFields.dropDownImage = updatedImg;
   }
-  console.log(updateFields);
 
   const collection = await collectionModel.findByIdAndUpdate(collectionId, updateFields, { new: true });
 
   if (!collection) {
-    return next(new ErrorHandler('Collection not found', 404));
+    return next(new ErrorHandler('Unable To Update Collection', 500));
   }
   return res.status(200).json({ msg: 'collection Update Sucessfully' });
 });
@@ -105,25 +115,16 @@ const getCollections = asyncHandler(async (req, res, next) => {
 const addCollectionVariety = asyncHandler(async (req, res, next) => {
   const { collectionId } = req.params;
   const { files } = req;
-  console.log(files);
-  console.log(req.body);
   const {
     varietyName, description, grip, mate, thickness,
   } = req.body;
-
-  if (!varietyName || !description || !grip || !mate || !thickness) {
-    return next(new ErrorHandler('please fill All rewquired fields', 400));
-  }
-  if (files.length === 0) {
-    return next(new ErrorHandler('where is images bro', 400));
-  }
 
   const varietyCardImage = files.find((item) => item.fieldname === 'varietyCardImage');
   const fullSlabImage = files.find((item) => item.fieldname === 'fullSlabImage');
   const closeLookUp = files.find((item) => item.fieldname === 'closeLookUp');
   const instalLook = files.find((item) => item.fieldname === 'instalLook');
 
-  if (!varietyCardImage || !fullSlabImage || !closeLookUp || !instalLook) {
+  if (!varietyCardImage || !fullSlabImage || !closeLookUp || !instalLook || !varietyName || !description || !grip || !mate || !thickness) {
     return next(new ErrorHandler('please fill All rewquired fields', 400));
   }
 
@@ -270,11 +271,12 @@ const deleteCollectionVariety = asyncHandler(async (req, res, next) => {
   await deleteImage(instalLook);
 
   const varietyDelete = collection.variety.pull(_id);
-  await collection.save();
 
   if (!varietyDelete) {
     return next(new ErrorHandler('variety Not Found', 400));
   }
+
+  await collection.save();
 
   return res.status(200).json(({ message: 'Variety Deleted Successfully' }));
 });
