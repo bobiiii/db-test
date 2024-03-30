@@ -1,3 +1,5 @@
+/* eslint-disable max-len */
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-vars */
 const { kitchenModel, bathroomModel } = require('../../models');
 const { asyncHandler } = require('../../utils/asyncHandler');
@@ -69,7 +71,6 @@ const updateKitchen = asyncHandler(async (req, res, next) => {
   if (cardImageFile !== undefined) {
     const fileId = verifyKitchenId.cardImage;
     const updatedImg = await updateImageOnDrive(fileId, cardImageFile);
-    console.log(updatedImg);
     updateFields.cardImage = updatedImg;
   }
 
@@ -148,7 +149,66 @@ const kitchenColor = asyncHandler(async (req, res, next) => {
 
   return res.status(200).json({ data: kitchenFind });
 });
-const updateKitchenColor = asyncHandler(async (req, res, next) => res.status(200).send('working'));
+const updateKitchenColor = asyncHandler(async (req, res, next) => {
+  const { kitchencolorId } = req.params;
+  const { files } = req;
+
+  const findKitchenColor = await kitchenModel.findOne({ 'colors._id': kitchencolorId });
+
+  if (!findKitchenColor) {
+    return next(new ErrorHandler('Kitchen not found', 404));
+  }
+
+  const kitchenColorIndex = findKitchenColor.colors.findIndex((item) => item._id.toString() === kitchencolorId);
+
+  if (kitchenColorIndex === -1) {
+    return next(new ErrorHandler('Kitchen Color not found', 404));
+  }
+
+  const colorCardImageFile = files.find((item) => item.fieldname === 'colorCardImage');
+  const mainImageFile = files.find((item) => item.fieldname === 'mainImage');
+
+  let colorCardImage;
+  let mainImage;
+
+  const colors = findKitchenColor.colors[kitchenColorIndex];
+
+  if (colorCardImageFile !== undefined) {
+    const fileId = colors.colorCardImage;
+    const newColorCardImage = await updateImageOnDrive(fileId, colorCardImageFile);
+    colorCardImage = newColorCardImage;
+  } else {
+    colorCardImage = colors.colorCardImage; // Keep the existing value if no new image is provided
+  }
+
+  if (mainImageFile !== undefined) {
+    const fileId = colors.mainImage;
+    const newMainImage = await updateImageOnDrive(fileId, mainImageFile);
+    mainImage = newMainImage;
+  } else {
+    mainImage = colors.mainImage; // Keep the existing value if no new image is provided
+  }
+
+  // Update other properties from the request body
+  const updatedColorDetails = {
+    colorName: req.body.colorName,
+    // Add other properties here if needed
+  };
+
+  const updatedColor = {
+    ...colors.toObject(), // Convert Mongoose document to plain JavaScript object
+    ...updatedColorDetails, // Merge existing data with updated data
+    colorCardImage, // Add updated images
+    mainImage,
+  };
+
+  findKitchenColor.colors[kitchenColorIndex] = updatedColor;
+
+  await findKitchenColor.save();
+
+  return res.status(200).json({ message: 'Kitchen Colors Updated', data: updatedColor });
+});
+
 const deleteKitchenColor = asyncHandler(async (req, res, next) => {
   const { kitchencolorId } = req.params;
   const findKitchen = await kitchenModel.findOne({ 'colors._id': kitchencolorId });
@@ -222,7 +282,39 @@ const Bathroom = asyncHandler(async (req, res, next) => {
   }
   return res.status(200).json({ data: bathroomData });
 });
-const updateBathroom = asyncHandler(async (req, res, next) => res.status(200).send('working'));
+const updateBathroom = asyncHandler(async (req, res, next) => {
+  const { bathroomId } = req.params;
+  const { files } = req;
+  const { name } = req.body;
+
+  const cardImageFile = files.find((item) => item.fieldname === 'cardImage');
+
+  const verifyBathroomId = await bathroomModel.findById(bathroomId);
+  if (!verifyBathroomId) {
+    return next(new ErrorHandler('Bathroom Not FOund', 400));
+  }
+
+  const updateFields = {};
+  if (name !== undefined) {
+    updateFields.name = name;
+  }
+  if (cardImageFile !== undefined) {
+    const fileId = verifyBathroomId.cardImage;
+    const updatedImg = await updateImageOnDrive(fileId, cardImageFile);
+    updateFields.cardImage = updatedImg;
+  }
+
+  const bathroomUpdated = await bathroomModel.findByIdAndUpdate(
+    bathroomId,
+    updateFields,
+    { new: true },
+  );
+
+  if (!bathroomUpdated) {
+    return next(new ErrorHandler('Unable To Update bathroom', 500));
+  }
+  return res.status(200).json({ message: 'bathroom Update Sucessfully' });
+});
 const deleteBathroom = asyncHandler(async (req, res, next) => {
   const { bathroomId } = req.params;
   const findbathroom = await bathroomModel.findById(bathroomId);
