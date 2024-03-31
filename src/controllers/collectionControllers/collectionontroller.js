@@ -68,7 +68,6 @@ const updateCollection = asyncHandler(async (req, res, next) => {
   if (collectionImageFile !== undefined) {
     const fileId = verifyCollectionId.collectionImage;
     const updatedImg = await updateImageOnDrive(fileId, collectionImageFile);
-    console.log(updatedImg);
     updateFields.collectionImage = updatedImg;
   }
   if (dropDownImageFile !== undefined) {
@@ -245,9 +244,11 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
     updatedVarietyDetails.thickness = thickness;
   }
 
-  // eslint-disable-next-line no-underscore-dangle
+  // eslint-disable-next-line no-underscore-dangle, no-multi-assign
   collection.variety[varietyIndex] = { ...collection.variety[varietyIndex], _id: collection.variety[varietyIndex]._id, ...updatedVarietyDetails };
-  await collection.save();
+  console.log(collection);
+  const checking = await collection.save();
+  console.log(checking);
   return res.status(200).json({ msg: 'Variety Updated' });
   // return res.status(200).json({ data: updatedVariety });
 });

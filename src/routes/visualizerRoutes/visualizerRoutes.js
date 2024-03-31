@@ -21,7 +21,7 @@ visualizerRoutes.delete('/kitchen/delete-color/:kitchencolorId', visualizerContr
 visualizerRoutes.post('/add-bathroom', upload.any(), visualizerControllers.addBathroom);
 visualizerRoutes.get('/bathrooms', visualizerControllers.Bathrooms);
 visualizerRoutes.get('/bathroom/:bathroomId', visualizerControllers.Bathroom);
-visualizerRoutes.put('/update-bathroom/:bathroomId', visualizerControllers.updateBathroom);
+visualizerRoutes.put('/update-bathroom/:bathroomId', upload.any(), visualizerControllers.updateBathroom);
 visualizerRoutes.delete('/delete-bathroom/:bathroomId', visualizerControllers.deleteBathroom);
 visualizerRoutes.post('/bathroom/add-colors/:bathroomId', upload.any(), visualizerControllers.addBathroomColors);
 visualizerRoutes.get('/bathroom/bathroom-colors/:bathroomcolorId', visualizerControllers.bathroomColor);
