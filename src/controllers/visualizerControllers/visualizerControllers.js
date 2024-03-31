@@ -178,7 +178,7 @@ const updateKitchenColor = asyncHandler(async (req, res, next) => {
     const newColorCardImage = await updateImageOnDrive(fileId, colorCardImageFile);
     colorCardImage = newColorCardImage;
   } else {
-    colorCardImage = colors.colorCardImage; // Keep the existing value if no new image is provided
+    colorCardImage = colors.colorCardImage;
   }
 
   if (mainImageFile !== undefined) {
@@ -186,19 +186,17 @@ const updateKitchenColor = asyncHandler(async (req, res, next) => {
     const newMainImage = await updateImageOnDrive(fileId, mainImageFile);
     mainImage = newMainImage;
   } else {
-    mainImage = colors.mainImage; // Keep the existing value if no new image is provided
+    mainImage = colors.mainImage;
   }
 
-  // Update other properties from the request body
   const updatedColorDetails = {
     colorName: req.body.colorName,
-    // Add other properties here if needed
   };
 
   const updatedColor = {
-    ...colors.toObject(), // Convert Mongoose document to plain JavaScript object
-    ...updatedColorDetails, // Merge existing data with updated data
-    colorCardImage, // Add updated images
+    ...colors.toObject(),
+    ...updatedColorDetails,
+    colorCardImage,
     mainImage,
   };
 
@@ -379,7 +377,63 @@ const bathroomColor = asyncHandler(async (req, res, next) => {
 
   return res.status(200).json({ data: bathroomFind });
 });
-const updatebathroomColor = asyncHandler(async (req, res, next) => res.status(200).send('working'));
+const updatebathroomColor = asyncHandler(async (req, res, next) => {
+  const { bathroomcolorId } = req.params;
+  const { files } = req;
+
+  const findbathroomColor = await bathroomModel.findOne({ 'colors._id': bathroomcolorId });
+
+  if (!findbathroomColor) {
+    return next(new ErrorHandler('bathroom not found', 404));
+  }
+
+  const bathroomColorIndex = findbathroomColor.colors.findIndex((item) => item._id.toString() === bathroomcolorId);
+
+  if (bathroomColorIndex === -1) {
+    return next(new ErrorHandler('bathroom Color not found', 404));
+  }
+
+  const colorCardImageFile = files.find((item) => item.fieldname === 'colorCardImage');
+  const mainImageFile = files.find((item) => item.fieldname === 'mainImage');
+
+  let colorCardImage;
+  let mainImage;
+
+  const colors = findbathroomColor.colors[bathroomColorIndex];
+
+  if (colorCardImageFile !== undefined) {
+    const fileId = colors.colorCardImage;
+    const newColorCardImage = await updateImageOnDrive(fileId, colorCardImageFile);
+    colorCardImage = newColorCardImage;
+  } else {
+    colorCardImage = colors.colorCardImage;
+  }
+
+  if (mainImageFile !== undefined) {
+    const fileId = colors.mainImage;
+    const newMainImage = await updateImageOnDrive(fileId, mainImageFile);
+    mainImage = newMainImage;
+  } else {
+    mainImage = colors.mainImage;
+  }
+
+  const updatedColorDetails = {
+    colorName: req.body.colorName,
+  };
+
+  const updatedColor = {
+    ...colors.toObject(),
+    ...updatedColorDetails,
+    colorCardImage,
+    mainImage,
+  };
+
+  findbathroomColor.colors[bathroomColorIndex] = updatedColor;
+
+  await findbathroomColor.save();
+
+  return res.status(200).json({ message: 'bathroom Colors Updated', data: updatedColor });
+});
 const deletebathroomColor = asyncHandler(async (req, res, next) => {
   const { bathroomcolorId } = req.params;
   const findBathroom = await bathroomModel.findOne({ 'colors._id': bathroomcolorId });

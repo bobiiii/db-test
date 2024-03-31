@@ -16,7 +16,6 @@ visualizerRoutes.post('/kitchen/add-colors/:kitchenId', upload.any(), visualizer
 visualizerRoutes.get('/kitchen/kitchen-colors/:kitchencolorId', visualizerControllers.kitchenColor);
 visualizerRoutes.put('/kitchen/update-color/:kitchencolorId', upload.any(), visualizerControllers.updateKitchenColor);
 visualizerRoutes.delete('/kitchen/delete-color/:kitchencolorId', visualizerControllers.deleteKitchenColor);
-// visualizerRoutes.get('/kitchen/color/:kitchencolorId', visualizerControllers.getKitchenColor);
 
 // Bathroom Routes
 visualizerRoutes.post('/add-bathroom', upload.any(), visualizerControllers.addBathroom);
