@@ -159,114 +159,108 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
   const { files } = req;
   const { varietyId } = req.params;
 
-  try {
-    const collection = await collectionModel.findOne({ 'variety._id': varietyId });
-    if (!collection) {
-      return next(new ErrorHandler('Collections not found', 404));
-    }
-
-    const varietyIndex = collection.variety.findIndex((variety) => variety._id.toString() === varietyId);
-    if (varietyIndex === -1) {
-      return next(new ErrorHandler('Variety not found', 404));
-    }
-
-    const fullSlabImageFile = files.find((item) => item.fieldname === 'fullSlabImage');
-    const varietyCardImageFile = files.find((item) => item.fieldname === 'varietyCardImage');
-    const closeLookUpFile = files.find((item) => item.fieldname === 'closeLookUp');
-    const instalLookFile = files.find((item) => item.fieldname === 'instalLook');
-
-    let fullSlabImage;
-    let varietyCardImage;
-    let closeLookUp;
-    let instalLook;
-
-    const varietyImages = collection.variety[varietyIndex];
-
-    if (fullSlabImageFile !== undefined) {
-      const fileId = varietyImages.fullSlabImage;
-      const newFullSlab = await updateImageOnDrive(fileId, fullSlabImageFile);
-      fullSlabImage = newFullSlab;
-    } else {
-      fullSlabImage = varietyImages.fullSlabImage;
-    }
-
-    if (varietyCardImageFile !== undefined) {
-      const fileId = varietyImages.varietyCardImage;
-      const newVarietyCard = await updateImageOnDrive(fileId, varietyCardImageFile);
-      varietyCardImage = newVarietyCard;
-    } else {
-      varietyCardImage = varietyImages.varietyCardImage;
-    }
-
-    if (closeLookUpFile !== undefined) {
-      const fileId = varietyImages.closeLookUp;
-      const newCloseLookUp = await updateImageOnDrive(fileId, closeLookUpFile);
-      closeLookUp = newCloseLookUp;
-    } else {
-      closeLookUp = varietyImages.closeLookUp;
-    }
-
-    if (instalLookFile !== undefined) {
-      const fileId = varietyImages.instalLook;
-      const newInstalLook = await updateImageOnDrive(fileId, instalLookFile);
-      instalLook = newInstalLook;
-    } else {
-      instalLook = varietyImages.instalLook;
-    }
-
-    const updatedVarietyImgs = {
-      varietyCardImage,
-      fullSlabImage,
-      closeLookUp,
-      instalLook,
-    };
-
-    const {
-      varietyName, description, grip, mate, thickness,
-    } = req.body;
-
-    const updatedVarietyDetails = {};
-
-    if (varietyName !== undefined) {
-      updatedVarietyDetails.varietyName = varietyName;
-    }
-    if (description !== undefined) {
-      updatedVarietyDetails.description = description;
-    }
-    if (grip !== undefined) {
-      updatedVarietyDetails.grip = grip;
-    }
-    if (mate !== undefined) {
-      updatedVarietyDetails.mate = mate;
-    }
-    if (thickness !== undefined) {
-      updatedVarietyDetails.thickness = thickness;
-    }
-
-    if (updatedVarietyImgs.varietyCardImage !== undefined) {
-      updatedVarietyDetails.varietyCardImage = varietyCardImage;
-    }
-    if (updatedVarietyImgs.fullSlabImage !== undefined) {
-      updatedVarietyDetails.fullSlabImage = fullSlabImage;
-    }
-    if (updatedVarietyImgs.closeLookUp !== undefined) {
-      updatedVarietyDetails.closeLookUp = closeLookUp;
-    }
-    if (updatedVarietyImgs.instalLook !== undefined) {
-      updatedVarietyDetails.instalLook = instalLook;
-    }
-
-    // Exclude _id from the update
-    delete updatedVarietyDetails._id;
-
-    collection.variety[varietyIndex] = { ...collection.variety[varietyIndex].toObject(), ...updatedVarietyDetails };
-
-    const updatedCollection = await collection.save();
-
-    return res.status(200).json({ message: 'Variety Updated' });
-  } catch (error) {
-    return next(new ErrorHandler('Internal Server Error', 500));
+  const collection = await collectionModel.findOne({ 'variety._id': varietyId });
+  if (!collection) {
+    return next(new ErrorHandler('Collections not found', 404));
   }
+
+  const varietyIndex = collection.variety.findIndex((variety) => variety._id.toString() === varietyId);
+  if (varietyIndex === -1) {
+    return next(new ErrorHandler('Variety not found', 404));
+  }
+
+  const fullSlabImageFile = files.find((item) => item.fieldname === 'fullSlabImage');
+  const varietyCardImageFile = files.find((item) => item.fieldname === 'varietyCardImage');
+  const closeLookUpFile = files.find((item) => item.fieldname === 'closeLookUp');
+  const instalLookFile = files.find((item) => item.fieldname === 'instalLook');
+
+  let fullSlabImage;
+  let varietyCardImage;
+  let closeLookUp;
+  let instalLook;
+
+  const varietyImages = collection.variety[varietyIndex];
+
+  if (fullSlabImageFile !== undefined) {
+    const fileId = varietyImages.fullSlabImage;
+    const newFullSlab = await updateImageOnDrive(fileId, fullSlabImageFile);
+    fullSlabImage = newFullSlab;
+  } else {
+    fullSlabImage = varietyImages.fullSlabImage;
+  }
+
+  if (varietyCardImageFile !== undefined) {
+    const fileId = varietyImages.varietyCardImage;
+    const newVarietyCard = await updateImageOnDrive(fileId, varietyCardImageFile);
+    varietyCardImage = newVarietyCard;
+  } else {
+    varietyCardImage = varietyImages.varietyCardImage;
+  }
+
+  if (closeLookUpFile !== undefined) {
+    const fileId = varietyImages.closeLookUp;
+    const newCloseLookUp = await updateImageOnDrive(fileId, closeLookUpFile);
+    closeLookUp = newCloseLookUp;
+  } else {
+    closeLookUp = varietyImages.closeLookUp;
+  }
+
+  if (instalLookFile !== undefined) {
+    const fileId = varietyImages.instalLook;
+    const newInstalLook = await updateImageOnDrive(fileId, instalLookFile);
+    instalLook = newInstalLook;
+  } else {
+    instalLook = varietyImages.instalLook;
+  }
+
+  const updatedVarietyImgs = {
+    varietyCardImage,
+    fullSlabImage,
+    closeLookUp,
+    instalLook,
+  };
+  const {
+    varietyName, description, grip, mate, thickness,
+  } = req.body;
+
+  const updatedVarietyDetails = {};
+
+  if (varietyName.trim() !== '') {
+    updatedVarietyDetails.varietyName = varietyName;
+  }
+  if (description.trim() !== '') {
+    updatedVarietyDetails.description = description;
+  }
+  if (grip.trim() !== '') {
+    updatedVarietyDetails.grip = grip;
+  }
+  if (mate.trim() !== '') {
+    updatedVarietyDetails.mate = mate;
+  }
+  if (thickness.trim() !== '') {
+    updatedVarietyDetails.thickness = thickness;
+  }
+
+  if (updatedVarietyImgs.varietyCardImage !== undefined) {
+    updatedVarietyDetails.varietyCardImage = varietyCardImage;
+  }
+  if (updatedVarietyImgs.fullSlabImage !== undefined) {
+    updatedVarietyDetails.fullSlabImage = fullSlabImage;
+  }
+  if (updatedVarietyImgs.closeLookUp !== undefined) {
+    updatedVarietyDetails.closeLookUp = closeLookUp;
+  }
+  if (updatedVarietyImgs.instalLook !== undefined) {
+    updatedVarietyDetails.instalLook = instalLook;
+  }
+
+  delete updatedVarietyDetails._id;
+
+  collection.variety[varietyIndex] = { ...collection.variety[varietyIndex].toObject(), ...updatedVarietyDetails };
+
+  await collection.save();
+
+  return res.status(200).json({ message: 'Variety Updated' });
 });
 
 const deleteCollectionVariety = asyncHandler(async (req, res, next) => {
