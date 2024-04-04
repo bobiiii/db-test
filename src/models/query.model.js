@@ -1,45 +1,52 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 const mongooose = require('mongoose');
 
-const blogSchema = new mongooose.Schema(
+const querySchema = new mongooose.Schema(
   {
-    title: {
+    location: {
       type: String,
       required: true,
       trim: true,
     },
-    date: {
-      type: Date,
+    zipcode: {
+      type: String,
       required: true,
       trim: true,
     },
-    views: {
+    firstname: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    lastname: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
+    mobile: {
       type: Number,
       required: true,
+      unique: true,
+      trim: true,
     },
-    blogImage: {
+    subject: {
       type: String,
       required: true,
+      trim: true,
     },
-    bannerImage: {
+    message: {
       type: String,
       required: true,
+      trim: true,
     },
-    contentOne: {
-      type: String,
-      required: true,
-    },
-    heading: {
-      type: String,
-      required: true,
-    },
-    contentImage: {
-      type: String,
-      required: true,
-    },
-    contentTwo: {
-      type: String,
-      required: true,
+    sendmail: {
+      type: Boolean,
     },
   },
   {
@@ -47,6 +54,6 @@ const blogSchema = new mongooose.Schema(
   },
 );
 
-const blogModel = mongooose.model('blogs', blogSchema);
+const queryModel = mongooose.model('queries', querySchema);
 
-module.exports = blogModel;
+module.exports = queryModel;

@@ -10,7 +10,6 @@ const blogRoute = express.Router();
 blogRoute.get('/', blogsControllers.getBlogs);
 blogRoute.post('/add-blog', upload.any(), blogsControllers.addBlogController);
 blogRoute.get('/:blogId', blogsControllers.blog);
-blogRoute.put('/update-blog/:blogId', upload.any(), blogsControllers.updateBlogController);
 blogRoute.delete('/delete-blog/:blogId', blogsControllers.deleteBlog);
 
 module.exports = blogRoute;

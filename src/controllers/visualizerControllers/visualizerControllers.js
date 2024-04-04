@@ -204,7 +204,7 @@ const updateKitchenColor = asyncHandler(async (req, res, next) => {
 
   await findKitchenColor.save();
 
-  return res.status(200).json({ message: 'Kitchen Colors Updated', data: updatedColor });
+  return res.status(200).json({ message: 'Kitchen Colors Updated' });
 });
 
 const deleteKitchenColor = asyncHandler(async (req, res, next) => {
@@ -432,7 +432,7 @@ const updatebathroomColor = asyncHandler(async (req, res, next) => {
 
   await findbathroomColor.save();
 
-  return res.status(200).json({ message: 'bathroom Colors Updated', data: updatedColor });
+  return res.status(200).json({ message: 'bathroom Colors Updated' });
 });
 const deletebathroomColor = asyncHandler(async (req, res, next) => {
   const { bathroomcolorId } = req.params;

@@ -3,6 +3,7 @@ const blogsControllers = require('./blogControllers');
 const authControllers = require('./authControllers');
 const visualizerControllers = require('./visualizerControllers');
 const collectionControllers = require('./collectionControllers');
+const queriesControllers = require('./queriesControllers');
 const { uploadImageToDrive } = require('./uploadImageController');
 
 module.exports = {
@@ -11,5 +12,6 @@ module.exports = {
   authControllers,
   visualizerControllers,
   collectionControllers,
+  queriesControllers,
   uploadImageToDrive,
 };

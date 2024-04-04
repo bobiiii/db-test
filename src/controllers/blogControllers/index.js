@@ -1,11 +1,10 @@
 const {
-  addBlogController, blog, getBlogs, updateBlogController, deleteBlog,
+  addBlogController, blog, getBlogs, deleteBlog,
 } = require('./blogConrollers');
 
 module.exports = {
   addBlogController,
   blog,
   getBlogs,
-  updateBlogController,
   deleteBlog,
 };

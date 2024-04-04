@@ -11,12 +11,12 @@ const addUserController = asyncHandler(async (req, res, next) => {
     name, email, password, role,
   } = req.body;
 
-  if (name && email && password && role === '') {
+  if (!name || !email || !password || !role) {
     return next(new ErrorHandler('Please fill all required fields', 400));
   }
   const userExist = await userModel.findOne({ email });
   if (userExist) {
-    next(new ErrorHandler('User already exists', 409));
+    return next(new ErrorHandler('User already exists', 409));
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -28,15 +28,15 @@ const addUserController = asyncHandler(async (req, res, next) => {
     role,
   });
   if (!addUserDB) {
-    next(new ErrorHandler('Unable to add user', 500));
+    return next(new ErrorHandler('Unable to add user', 500));
   }
-  return res.status(200).send({ message: 'User added successfully', data: addUserDB });
+  return res.status(200).json({ message: 'User added successfully' });
 });
 
 const loginUserController = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
 
-  if (email && password === '') {
+  if (!email || !password) {
     return next(new ErrorHandler('Please fill all required fields', 400));
   }
 

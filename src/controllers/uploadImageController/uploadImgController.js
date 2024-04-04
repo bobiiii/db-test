@@ -2,6 +2,8 @@ const { google } = require('googleapis');
 const stream = require('stream');
 // const path = require('path');
 const { ErrorHandler } = require('../../utils/errorHandler');
+// eslint-disable-next-line no-unused-expressions
+require('buffer').Blob;
 
 // const dir = process.cwd();
 // const KEYFILEPATH = path.join(dir, '/credentials.json');
