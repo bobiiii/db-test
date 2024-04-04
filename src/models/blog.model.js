@@ -17,7 +17,7 @@ const blogSchema = new mongooose.Schema(
       type: Number,
       required: true,
     },
-    blogImage: {
+    cardImage: {
       type: String,
       required: true,
     },
@@ -25,19 +25,35 @@ const blogSchema = new mongooose.Schema(
       type: String,
       required: true,
     },
-    contentOne: {
+    headingOne: {
       type: String,
       required: true,
     },
-    heading: {
+    paragraphOne: {
       type: String,
       required: true,
     },
-    contentImage: {
+    imageOne: {
       type: String,
       required: true,
     },
-    contentTwo: {
+    headingTwo: {
+      type: String,
+      required: true,
+    },
+    paragraphTwo: {
+      type: String,
+      required: true,
+    },
+    imageTwo: {
+      type: String,
+      required: true,
+    },
+    headingThree: {
+      type: String,
+      required: true,
+    },
+    paragraphThree: {
       type: String,
       required: true,
     },

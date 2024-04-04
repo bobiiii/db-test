@@ -7,17 +7,18 @@ const { uploadImageToDrive, deleteImage } = require('../uploadImageController');
 
 const addBlogController = asyncHandler(async (req, res, next) => {
   const { files } = req;
-  const blogImage = files.find((item) => item.fieldname === 'blogImage');
+  const cardImage = files.find((item) => item.fieldname === 'cardImage');
   const bannerImage = files.find((item) => item.fieldname === 'bannerImage');
-  const contentImage = files.find((item) => item.fieldname === 'contentImage');
+  const imageOne = files.find((item) => item.fieldname === 'imageOne');
+  const imageTwo = files.find((item) => item.fieldname === 'imageTwo');
 
   let {
-    // eslint-disable-next-line prefer-const
-    title, date, views, contentOne, heading, contentTwo,
+    // eslint-disable-next-line prefer-const, max-len
+    title, date, views, headingOne, paragraphOne, headingTwo, paragraphTwo, headingThree, paragraphThree,
   } = req.body;
 
   // eslint-disable-next-line max-len
-  if (!title || !date || !views || !contentOne || !heading || !contentTwo || !blogImage || !bannerImage || !contentImage) {
+  if (!title || !date || !views || !headingOne || !paragraphOne || !headingTwo || !paragraphTwo || !headingThree || !paragraphThree || !cardImage || !imageOne || !bannerImage || !imageTwo) {
     return next(new ErrorHandler('Please fill all required fields', 400));
   }
 
@@ -27,26 +28,31 @@ const addBlogController = asyncHandler(async (req, res, next) => {
     next(new ErrorHandler('Blog already exists', 409));
   }
 
-  const blogImageId = await uploadImageToDrive(blogImage);
+  const cardImageId = await uploadImageToDrive(cardImage);
   const bannerImageId = await uploadImageToDrive(bannerImage);
-  const contentImageId = await uploadImageToDrive(contentImage);
+  const imageOneId = await uploadImageToDrive(imageOne);
+  const imageTwoId = await uploadImageToDrive(imageTwo);
 
   const addBlogDB = await blogModel.create({
     title,
     date,
     views,
-    blogImage: blogImageId,
+    cardImage: cardImageId,
     bannerImage: bannerImageId,
-    contentOne,
-    heading,
-    contentImage: contentImageId,
-    contentTwo,
+    headingOne,
+    paragraphOne,
+    imageOne: imageOneId,
+    headingTwo,
+    paragraphTwo,
+    imageTwo: imageTwoId,
+    headingThree,
+    paragraphThree,
   });
 
   if (!addBlogDB) {
     next(new ErrorHandler('Unable to add blog', 500));
   }
-  return res.status(200).send({ msg: 'Blog added successfully' });
+  return res.status(200).send({ message: 'Blog added successfully' });
 });
 
 const getBlogs = asyncHandler(async (req, res, next) => {
@@ -74,10 +80,13 @@ const deleteBlog = asyncHandler(async (req, res, next) => {
     next(new ErrorHandler('No blog found ', 400));
   }
 
-  const { blogImage, bannerImage, contentImage } = delBlog;
-  await deleteImage(blogImage);
+  const {
+    cardImage, bannerImage, imageOne, imageTwo,
+  } = delBlog;
+  await deleteImage(cardImage);
   await deleteImage(bannerImage);
-  await deleteImage(contentImage);
+  await deleteImage(imageOne);
+  await deleteImage(imageTwo);
   await blogModel.findByIdAndDelete(blogId);
 
   return res.status(200).json({ message: 'blog deleted successfully ' });
