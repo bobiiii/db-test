@@ -16,13 +16,11 @@ const querySchema = new mongooose.Schema(
     email: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
     },
     mobile: {
       type: Number,
       required: true,
-      unique: true,
       trim: true,
     },
     options: {
