@@ -37,7 +37,7 @@ const createQuery = asyncHandler(async (req, res, next) => {
   });
 
   if (!addqueryDB) {
-    next(new ErrorHandler('Unable to add user', 500));
+    next(new ErrorHandler('Unable to add query', 500));
   }
 
   const transporter = nodemailer.createTransport({
@@ -75,11 +75,11 @@ const getQuery = asyncHandler(async (req, res, next) => {
 });
 
 const getAllQuery = asyncHandler(async (req, res, next) => {
-  const queriess = await queryModel.find({});
-  if (!queriess) {
-    next(new ErrorHandler('No users found ', 400));
+  const queries = await queryModel.find({});
+  if (!queries) {
+    next(new ErrorHandler('No queries found ', 400));
   }
-  return res.status(200).json({ data: queriess });
+  return res.status(200).json({ data: queries });
 });
 const deleteQuery = asyncHandler(async (req, res, next) => {
   const { queryId } = req.params;
