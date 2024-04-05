@@ -14,10 +14,6 @@ const createQuery = asyncHandler(async (req, res, next) => {
   if (!location || !email || !zipcode || !firstname || !lastname || !mobile || !subject || !message || !sendmail) {
     return next(new ErrorHandler('Please fill all required fields', 400));
   }
-  const userExist = await queryModel.findOne({ email });
-  if (userExist) {
-    next(new ErrorHandler('Query already exists', 409));
-  }
 
   const addqueryDB = queryModel.create({
     location,
@@ -32,7 +28,7 @@ const createQuery = asyncHandler(async (req, res, next) => {
   });
 
   if (!addqueryDB) {
-    next(new ErrorHandler('Unable to add user', 500));
+    next(new ErrorHandler('Unable to add query', 500));
   }
 
   if (sendmail === true) {
