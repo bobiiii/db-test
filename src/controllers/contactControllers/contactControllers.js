@@ -19,10 +19,6 @@ const createContact = asyncHandler(async (req, res, next) => {
   if (!location || !zipcode || !email || !firstname || !lastname || !mobile || !subject || !message || !upload || !checked) {
     return next(new ErrorHandler('Please fill all required fields', 400));
   }
-  const contactExist = await contactModel.findOne({ email });
-  if (contactExist) {
-    next(new ErrorHandler('contact already exists', 409));
-  }
 
   const uploadId = await uploadImageToDrive(upload);
 
@@ -54,13 +50,50 @@ const createContact = asyncHandler(async (req, res, next) => {
   const mailOptions = {
     from: process.env.AUTH,
     to: email,
-    subject: 'nodemailer Test',
-    text: 'test Sending gmail using Node js',
+    subject: 'Thank you for contacting Sharif Stone',
+    html: `
+      <html>
+        <body>
+          <p>Dear ${firstname},</p>
+          <p>Thank you for contacting Sharif Stone. We have received your message and will get back to you shortly.</p>
+          <p>Regards,</p>
+          <p>Team Sharif Stone</p>
+        </body>
+      </html>
+    `,
   };
 
   transporter.sendMail(mailOptions, (error) => {
     if (error) {
       next(new ErrorHandler('Email Not Send To contact user', 400));
+    }
+  });
+
+  const adminMailOptions = {
+    from: process.env.AUTH,
+    to: process.env.ADMIN_EMAIL,
+    subject: 'New Contact Form Submission on Sharif Stone Website',
+    html: `
+      <html>
+        <body>
+          <p>Hello Admin,</p>
+          <p>A new user has contacted through the Sharif Stone website. Here are the details:</p>
+          <ul>
+            <li>Name: ${firstname} ${lastname}</li>
+            <li>Email: ${email}</li>
+            <li>Mobile: ${mobile}</li>
+            <li>Message: ${message}</li>
+          </ul>
+          <p>Regards,</p>
+          <p>Team Sharif Stone</p>
+        </body>
+      </html>
+    `,
+  };
+
+  transporter.sendMail(adminMailOptions, (error) => {
+    if (error) {
+      console.error('Error sending email to admin:', error);
     }
   });
 
