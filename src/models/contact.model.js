@@ -1,8 +1,18 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 const mongooose = require('mongoose');
 
-const querySchema = new mongooose.Schema(
+const contactSchema = new mongooose.Schema(
   {
+    location: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    zipcode: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     firstname: {
       type: String,
       required: true,
@@ -25,7 +35,7 @@ const querySchema = new mongooose.Schema(
       unique: true,
       trim: true,
     },
-    options: {
+    subject: {
       type: String,
       required: true,
       trim: true,
@@ -35,10 +45,13 @@ const querySchema = new mongooose.Schema(
       required: true,
       trim: true,
     },
-    image: {
+    upload: {
       type: String,
       required: true,
       trim: true,
+    },
+    checked: {
+      type: Boolean,
     },
   },
   {
@@ -46,6 +59,6 @@ const querySchema = new mongooose.Schema(
   },
 );
 
-const queryModel = mongooose.model('queries', querySchema);
+const contactModel = mongooose.model('contacts', contactSchema);
 
-module.exports = queryModel;
+module.exports = contactModel;
