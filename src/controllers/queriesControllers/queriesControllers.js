@@ -3,56 +3,59 @@ const nodemailer = require('nodemailer');
 const { queryModel } = require('../../models');
 const { asyncHandler } = require('../../utils/asyncHandler');
 const { ErrorHandler } = require('../../utils/errorHandler');
+const { uploadImageToDrive, deleteImage } = require('../uploadImageController');
 
 const createQuery = asyncHandler(async (req, res, next) => {
+  const { files } = req;
+
+  const image = files.find((item) => item.fieldname === 'image');
+
   let {
     // eslint-disable-next-line prefer-const
-    location, zipcode, firstname, lastname, email, mobile, subject, message, sendmail,
+    firstname, lastname, email, mobile, options, message,
   } = req.body;
 
   // eslint-disable-next-line max-len
-  if (!location || !email || !zipcode || !firstname || !lastname || !mobile || !subject || !message || !sendmail) {
+  if (!email || !firstname || !lastname || !mobile || !options || !message || !image) {
     return next(new ErrorHandler('Please fill all required fields', 400));
   }
 
+  const imageId = await uploadImageToDrive(image);
+
   const addqueryDB = queryModel.create({
-    location,
-    zipcode,
     firstname,
     lastname,
     email,
     mobile,
-    subject,
+    options,
     message,
-    sendmail,
+    image: imageId,
   });
 
   if (!addqueryDB) {
     next(new ErrorHandler('Unable to add query', 500));
   }
 
-  if (sendmail === true) {
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.AUTH,
-        pass: process.env.PASSWORD,
-      },
-    });
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.AUTH,
+      pass: process.env.PASSWORD,
+    },
+  });
 
-    const mailOptions = {
-      from: process.env.AUTH,
-      to: email,
-      subject: 'nodemailer Test',
-      text: 'test Sending gmail using Node js',
-    };
+  const mailOptions = {
+    from: process.env.AUTH,
+    to: email,
+    subject: 'nodemailer Test',
+    text: 'test Sending gmail using Node js',
+  };
 
-    transporter.sendMail(mailOptions, (error) => {
-      if (error) {
-        next(new ErrorHandler('Email Not Send To Query', 400));
-      }
-    });
-  }
+  transporter.sendMail(mailOptions, (error) => {
+    if (error) {
+      next(new ErrorHandler('Email Not Send To Query', 400));
+    }
+  });
 
   return res.status(200).json({ message: 'query added successfully' });
 });
@@ -68,21 +71,25 @@ const getQuery = asyncHandler(async (req, res, next) => {
 });
 
 const getAllQuery = asyncHandler(async (req, res, next) => {
-  const queriess = await queryModel.find({});
-  if (!queriess) {
-    next(new ErrorHandler('No users found ', 400));
+  const queries = await queryModel.find({});
+  if (!queries) {
+    next(new ErrorHandler('No queries found ', 400));
   }
-  return res.status(200).json({ data: queriess });
+  return res.status(200).json({ data: queries });
 });
 const deleteQuery = asyncHandler(async (req, res, next) => {
   const { queryId } = req.params;
 
-  const queryDelete = queryModel.findByIdAndDelete(queryId);
-
-  if (queryDelete) {
-    return res.status(200).json({ message: 'Query Delete SuccessFully' });
+  const queryDelete = await queryModel.findById(queryId);
+  if (!queryDelete) {
+    return next(new ErrorHandler('Query Does Not Exist'));
   }
-  return next(new ErrorHandler('Query Does Not Exist'));
+
+  const { image } = queryDelete;
+  await deleteImage(image);
+  await queryModel.findByIdAndDelete(queryId);
+
+  return res.status(200).json({ message: 'query successfully deleted' });
 });
 
 module.exports = {
