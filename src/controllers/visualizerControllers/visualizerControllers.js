@@ -4,7 +4,9 @@
 const { kitchenModel, bathroomModel } = require('../../models');
 const { asyncHandler } = require('../../utils/asyncHandler');
 const { ErrorHandler } = require('../../utils/errorHandler');
-const { uploadImageToDrive, deleteImage, updateImageOnDrive } = require('../uploadImageController');
+const {
+  uploadImageToDrive, deleteImage, updateImageOnDrive, isImage,
+} = require('../uploadImageController');
 
 // bathroom Apis
 const addKitchen = asyncHandler(async (req, res, next) => {
@@ -16,7 +18,9 @@ const addKitchen = asyncHandler(async (req, res, next) => {
   if (!name || !cardImage) {
     return next(new ErrorHandler('please fill All rewquired fields', 400));
   }
-
+  if (!isImage(cardImage)) {
+    return next(new ErrorHandler('Only images are allowed', 400));
+  }
   const verifyKitchen = await kitchenModel.findOne({ name });
 
   if (verifyKitchen) {
@@ -69,6 +73,9 @@ const updateKitchen = asyncHandler(async (req, res, next) => {
     updateFields.name = name;
   }
   if (cardImageFile !== undefined) {
+    if (!isImage(cardImageFile)) {
+      return next(new ErrorHandler('Only images are allowed', 400));
+    }
     const fileId = verifyKitchenId.cardImage;
     const updatedImg = await updateImageOnDrive(fileId, cardImageFile);
     updateFields.cardImage = updatedImg;
@@ -111,6 +118,10 @@ const addKitchenColors = asyncHandler(async (req, res, next) => {
 
   if (!colorName || !colorCardImage || !mainImage) {
     return next(new ErrorHandler('please fill All rewquired fields', 400));
+  }
+
+  if (!isImage(colorCardImage) || !isImage(mainImage)) {
+    return next(new ErrorHandler('Only images are allowed', 400));
   }
 
   const verifyKitchen = await kitchenModel.findById(kitchenId);
@@ -174,6 +185,9 @@ const updateKitchenColor = asyncHandler(async (req, res, next) => {
   const colors = findKitchenColor.colors[kitchenColorIndex];
 
   if (colorCardImageFile !== undefined) {
+    if (!isImage(colorCardImageFile)) {
+      return next(new ErrorHandler('Only images are allowed', 400));
+    }
     const fileId = colors.colorCardImage;
     const newColorCardImage = await updateImageOnDrive(fileId, colorCardImageFile);
     colorCardImage = newColorCardImage;
@@ -182,6 +196,9 @@ const updateKitchenColor = asyncHandler(async (req, res, next) => {
   }
 
   if (mainImageFile !== undefined) {
+    if (!isImage(mainImageFile)) {
+      return next(new ErrorHandler('Only images are allowed', 400));
+    }
     const fileId = colors.mainImage;
     const newMainImage = await updateImageOnDrive(fileId, mainImageFile);
     mainImage = newMainImage;
@@ -245,6 +262,9 @@ const addBathroom = asyncHandler(async (req, res, next) => {
     return next(new ErrorHandler('please fill All rewquired fields', 400));
   }
 
+  if (!isImage(cardImage)) {
+    return next(new ErrorHandler('Only images are allowed', 400));
+  }
   const verifyBathroom = await bathroomModel.findOne({ name });
 
   if (verifyBathroom) {
@@ -297,6 +317,9 @@ const updateBathroom = asyncHandler(async (req, res, next) => {
     updateFields.name = name;
   }
   if (cardImageFile !== undefined) {
+    if (!isImage(cardImageFile)) {
+      return next(new ErrorHandler('Only images are allowed', 400));
+    }
     const fileId = verifyBathroomId.cardImage;
     const updatedImg = await updateImageOnDrive(fileId, cardImageFile);
     updateFields.cardImage = updatedImg;
@@ -341,6 +364,9 @@ const addBathroomColors = asyncHandler(async (req, res, next) => {
     return next(new ErrorHandler('please fill All rewquired fields', 400));
   }
 
+  if (!isImage(colorCardImage) || !isImage(mainImage)) {
+    return next(new ErrorHandler('Only images are allowed', 400));
+  }
   const verifyBathroom = await bathroomModel.findById(bathroomId);
   if (!verifyBathroom) {
     return res.status(404).json({ message: 'Bathroom not found' });
@@ -402,6 +428,9 @@ const updatebathroomColor = asyncHandler(async (req, res, next) => {
   const colors = findbathroomColor.colors[bathroomColorIndex];
 
   if (colorCardImageFile !== undefined) {
+    if (!isImage(colorCardImageFile)) {
+      return next(new ErrorHandler('Only images are allowed', 400));
+    }
     const fileId = colors.colorCardImage;
     const newColorCardImage = await updateImageOnDrive(fileId, colorCardImageFile);
     colorCardImage = newColorCardImage;
@@ -410,6 +439,9 @@ const updatebathroomColor = asyncHandler(async (req, res, next) => {
   }
 
   if (mainImageFile !== undefined) {
+    if (!isImage(mainImageFile)) {
+      return next(new ErrorHandler('Only images are allowed', 400));
+    }
     const fileId = colors.mainImage;
     const newMainImage = await updateImageOnDrive(fileId, mainImageFile);
     mainImage = newMainImage;

@@ -2,7 +2,7 @@ const nodemailer = require('nodemailer');
 const { contactModel } = require('../../models');
 const { asyncHandler } = require('../../utils/asyncHandler');
 const { ErrorHandler } = require('../../utils/errorHandler');
-const { uploadImageToDrive, deleteImage } = require('../uploadImageController');
+const { uploadImageToDrive, deleteImage, isImage } = require('../uploadImageController');
 require('dotenv').config();
 
 const createContact = asyncHandler(async (req, res, next) => {
@@ -18,6 +18,10 @@ const createContact = asyncHandler(async (req, res, next) => {
   // eslint-disable-next-line max-len
   if (!location || !zipcode || !email || !firstname || !lastname || !mobile || !subject || !message || !upload || !checked) {
     return next(new ErrorHandler('Please fill all required fields', 400));
+  }
+
+  if (!isImage(upload)) {
+    return next(new ErrorHandler('Only images are allowed', 400));
   }
 
   const uploadId = await uploadImageToDrive(upload);

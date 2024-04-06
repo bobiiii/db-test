@@ -3,7 +3,7 @@ const nodemailer = require('nodemailer');
 const { queryModel } = require('../../models');
 const { asyncHandler } = require('../../utils/asyncHandler');
 const { ErrorHandler } = require('../../utils/errorHandler');
-const { uploadImageToDrive, deleteImage } = require('../uploadImageController');
+const { uploadImageToDrive, deleteImage, isImage } = require('../uploadImageController');
 
 const createQuery = asyncHandler(async (req, res, next) => {
   const { files } = req;
@@ -18,6 +18,10 @@ const createQuery = asyncHandler(async (req, res, next) => {
   // eslint-disable-next-line max-len
   if (!email || !firstname || !lastname || !mobile || !options || !message || !image) {
     return next(new ErrorHandler('Please fill all required fields', 400));
+  }
+
+  if (!isImage(image)) {
+    return next(new ErrorHandler('Only images are allowed', 400));
   }
 
   const imageId = await uploadImageToDrive(image);

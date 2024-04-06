@@ -3,7 +3,7 @@
 const { asyncHandler } = require('../../utils/asyncHandler');
 const { blogModel } = require('../../models');
 const { ErrorHandler } = require('../../utils/errorHandler');
-const { uploadImageToDrive, deleteImage } = require('../uploadImageController');
+const { uploadImageToDrive, deleteImage, isImage } = require('../uploadImageController');
 
 const addBlogController = asyncHandler(async (req, res, next) => {
   const { files } = req;
@@ -11,6 +11,7 @@ const addBlogController = asyncHandler(async (req, res, next) => {
   const bannerImage = files.find((item) => item.fieldname === 'bannerImage');
   const imageOne = files.find((item) => item.fieldname === 'imageOne');
   const imageTwo = files.find((item) => item.fieldname === 'imageTwo');
+  console.log(files);
 
   let {
     // eslint-disable-next-line prefer-const, max-len
@@ -20,6 +21,10 @@ const addBlogController = asyncHandler(async (req, res, next) => {
   // eslint-disable-next-line max-len
   if (!title || !date || !views || !headingOne || !paragraphOne || !headingTwo || !paragraphTwo || !headingThree || !paragraphThree || !cardImage || !imageOne || !bannerImage || !imageTwo) {
     return next(new ErrorHandler('Please fill all required fields', 400));
+  }
+
+  if (!isImage(cardImage) || !isImage(imageOne) || !isImage(bannerImage) || !isImage(imageTwo)) {
+    return next(new ErrorHandler('Only images are allowed', 400));
   }
 
   title = title.toLowerCase();

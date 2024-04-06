@@ -5,7 +5,9 @@
 const { asyncHandler } = require('../../utils/asyncHandler');
 const { ErrorHandler } = require('../../utils/errorHandler');
 const { collectionModel } = require('../../models');
-const { uploadImageToDrive, updateImageOnDrive, deleteImage } = require('../uploadImageController');
+const {
+  uploadImageToDrive, updateImageOnDrive, deleteImage, isImage,
+} = require('../uploadImageController');
 
 const addCollection = asyncHandler(async (req, res, next) => {
   const { files } = req;
@@ -16,6 +18,10 @@ const addCollection = asyncHandler(async (req, res, next) => {
 
   if (!collectionName || !collectionImage || !dropDownImage) {
     return next(new ErrorHandler('please fill All rewquired fields', 400));
+  }
+
+  if (!isImage(collectionImage) || !isImage(dropDownImage)) {
+    return next(new ErrorHandler('Only images are allowed', 400));
   }
 
   const verifyCollection = await collectionModel.findOne({ collectionName });
@@ -67,11 +73,17 @@ const updateCollection = asyncHandler(async (req, res, next) => {
     updateFields.collectionName = collectionName;
   }
   if (collectionImageFile !== undefined) {
+    if (!isImage(collectionImageFile)) {
+      return next(new ErrorHandler('Only images are allowed', 400));
+    }
     const fileId = verifyCollectionId.collectionImage;
     const updatedImg = await updateImageOnDrive(fileId, collectionImageFile);
     updateFields.collectionImage = updatedImg;
   }
   if (dropDownImageFile !== undefined) {
+    if (!isImage(dropDownImageFile)) {
+      return next(new ErrorHandler('Only images are allowed', 400));
+    }
     const fileId = verifyCollectionId.dropDownImage;
     const updatedImg = await updateImageOnDrive(fileId, dropDownImageFile);
     updateFields.dropDownImage = updatedImg;
@@ -127,7 +139,9 @@ const addCollectionVariety = asyncHandler(async (req, res, next) => {
   if (!varietyCardImage || !fullSlabImage || !closeLookUp || !instalLook || !varietyName || !description || !grip || !mate || !thickness) {
     return next(new ErrorHandler('please fill All rewquired fields', 400));
   }
-
+  if (!isImage(varietyCardImage) || !isImage(fullSlabImage) || !isImage(closeLookUp) || !isImage(instalLook)) {
+    return next(new ErrorHandler('Only images are allowed', 400));
+  }
   const collection = await collectionModel.findById(collectionId);
   if (!collection) {
     return res.status(404).json({ message: 'Collection not found' });
@@ -182,6 +196,9 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
   const varietyImages = collection.variety[varietyIndex];
 
   if (fullSlabImageFile !== undefined) {
+    if (!isImage(fullSlabImageFile)) {
+      return next(new ErrorHandler('Only images are allowed', 400));
+    }
     const fileId = varietyImages.fullSlabImage;
     const newFullSlab = await updateImageOnDrive(fileId, fullSlabImageFile);
     fullSlabImage = newFullSlab;
@@ -190,6 +207,9 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
   }
 
   if (varietyCardImageFile !== undefined) {
+    if (!isImage(varietyCardImageFile)) {
+      return next(new ErrorHandler('Only images are allowed', 400));
+    }
     const fileId = varietyImages.varietyCardImage;
     const newVarietyCard = await updateImageOnDrive(fileId, varietyCardImageFile);
     varietyCardImage = newVarietyCard;
@@ -198,6 +218,9 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
   }
 
   if (closeLookUpFile !== undefined) {
+    if (!isImage(closeLookUpFile)) {
+      return next(new ErrorHandler('Only images are allowed', 400));
+    }
     const fileId = varietyImages.closeLookUp;
     const newCloseLookUp = await updateImageOnDrive(fileId, closeLookUpFile);
     closeLookUp = newCloseLookUp;
@@ -206,6 +229,9 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
   }
 
   if (instalLookFile !== undefined) {
+    if (!isImage(instalLookFile)) {
+      return next(new ErrorHandler('Only images are allowed', 400));
+    }
     const fileId = varietyImages.instalLook;
     const newInstalLook = await updateImageOnDrive(fileId, instalLookFile);
     instalLook = newInstalLook;

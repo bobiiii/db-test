@@ -89,8 +89,11 @@ const deleteImage = async (imageRef) => {
   }
 };
 
+const isImage = (file) => file && file.mimetype.startsWith('image/');
+
 module.exports = {
   uploadImageToDrive,
   updateImageOnDrive,
   deleteImage,
+  isImage,
 };
