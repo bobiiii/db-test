@@ -9,7 +9,7 @@ const sendCookieToken = async (user, statusCode, req, res) => {
   const {
     id, name, email, role,
   } = user;
-
+  const message = 'User Successfully Login';
   const cookieOptions = {
     httpOnly: true,
     // sameSite: 'strict',
@@ -19,6 +19,7 @@ const sendCookieToken = async (user, statusCode, req, res) => {
   res.cookie('token', token, cookieOptions);
   res.status(statusCode).json({
     status: 'success',
+    message,
     token,
     id,
     name,
