@@ -139,6 +139,13 @@ const addCollectionVariety = asyncHandler(async (req, res, next) => {
   if (!varietyCardImage || !fullSlabImage || !closeLookUp || !instalLook || !varietyName || !description || !grip || !mate || !thickness) {
     return next(new ErrorHandler('please fill All rewquired fields', 400));
   }
+
+  const verifyVariety = await collectionModel.findOne({ varietyName });
+
+  if (verifyVariety) {
+    return next(new ErrorHandler('Variety Already Exist', 400));
+  }
+
   if (!isImage(varietyCardImage) || !isImage(fullSlabImage) || !isImage(closeLookUp) || !isImage(instalLook)) {
     return next(new ErrorHandler('Only images are allowed', 400));
   }
