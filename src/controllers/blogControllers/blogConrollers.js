@@ -4,6 +4,7 @@ const { asyncHandler } = require('../../utils/asyncHandler');
 const { blogModel } = require('../../models');
 const { ErrorHandler } = require('../../utils/errorHandler');
 const { uploadImageToDrive, deleteImage, isImage } = require('../uploadImageController');
+const { createSlug } = require('../../utils/createSlug');
 
 const addBlogController = asyncHandler(async (req, res, next) => {
   const { files } = req;
@@ -38,8 +39,11 @@ const addBlogController = asyncHandler(async (req, res, next) => {
   const imageOneId = await uploadImageToDrive(imageOne);
   const imageTwoId = await uploadImageToDrive(imageTwo);
 
+  const slugAuto = createSlug(title);
+
   const addBlogDB = await blogModel.create({
     title,
+    slug: slugAuto,
     date,
     views,
     cardImage: cardImageId,

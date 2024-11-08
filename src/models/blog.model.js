@@ -8,6 +8,10 @@ const blogSchema = new mongooose.Schema(
       required: true,
       trim: true,
     },
+    slug: {
+      type: String,
+      required: true,
+    },
     date: {
       type: Date,
       required: true,

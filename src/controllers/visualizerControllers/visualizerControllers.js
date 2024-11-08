@@ -3,6 +3,7 @@
 /* eslint-disable no-unused-vars */
 const { kitchenModel, bathroomModel } = require('../../models');
 const { asyncHandler } = require('../../utils/asyncHandler');
+const { createSlug } = require('../../utils/createSlug');
 const { ErrorHandler } = require('../../utils/errorHandler');
 const {
   uploadImageToDrive, deleteImage, updateImageOnDrive, isImage,
@@ -28,9 +29,10 @@ const addKitchen = asyncHandler(async (req, res, next) => {
   }
 
   const cardImageId = await uploadImageToDrive(cardImage);
-
+  const slugAuto = createSlug(name);
   const kitchen = await kitchenModel.create({
     name,
+    slug: slugAuto,
     cardImage: cardImageId,
   });
 
@@ -71,6 +73,7 @@ const updateKitchen = asyncHandler(async (req, res, next) => {
   const updateFields = {};
   if (name !== undefined) {
     updateFields.name = name;
+    updateFields.slug = createSlug(name);
   }
   if (cardImageFile !== undefined) {
     if (!isImage(cardImageFile)) {
@@ -132,8 +135,11 @@ const addKitchenColors = asyncHandler(async (req, res, next) => {
   const colorCardImageRef = await uploadImageToDrive(colorCardImage);
   const mainImageRef = await uploadImageToDrive(mainImage);
 
+  const slugAuto = createSlug(colorName);
+
   const bathroomColors = {
     colorName,
+    slug: slugAuto,
     colorCardImage: colorCardImageRef,
     mainImage: mainImageRef,
   };
@@ -206,8 +212,13 @@ const updateKitchenColor = asyncHandler(async (req, res, next) => {
     mainImage = colors.mainImage;
   }
 
+  let slugAuto;
+  if (req.body.colorName) {
+    slugAuto = createSlug(req.body.colorName);
+  }
   const updatedColorDetails = {
     colorName: req.body.colorName,
+    slug: slugAuto,
   };
 
   const updatedColor = {
@@ -272,9 +283,10 @@ const addBathroom = asyncHandler(async (req, res, next) => {
   }
 
   const cardImageId = await uploadImageToDrive(cardImage);
-
+  const slugAuto = createSlug(name);
   const Bathroom = await bathroomModel.create({
     name,
+    slug: slugAuto,
     cardImage: cardImageId,
   });
 
@@ -315,6 +327,7 @@ const updateBathroom = asyncHandler(async (req, res, next) => {
   const updateFields = {};
   if (name !== undefined) {
     updateFields.name = name;
+    updateFields.slug = createSlug(name);
   }
   if (cardImageFile !== undefined) {
     if (!isImage(cardImageFile)) {
@@ -375,8 +388,10 @@ const addBathroomColors = asyncHandler(async (req, res, next) => {
   const colorCardImageRef = await uploadImageToDrive(colorCardImage);
   const mainImageRef = await uploadImageToDrive(mainImage);
 
+  const slugAuto = createSlug(colorName);
   const bathroomColors = {
     colorName,
+    slug: slugAuto,
     colorCardImage: colorCardImageRef,
     mainImage: mainImageRef,
   };
@@ -448,9 +463,13 @@ const updatebathroomColor = asyncHandler(async (req, res, next) => {
   } else {
     mainImage = colors.mainImage;
   }
-
+  let slugAuto;
+  if (req.body.colorName) {
+    slugAuto = createSlug(req.body.colorName);
+  }
   const updatedColorDetails = {
     colorName: req.body.colorName,
+    slug: slugAuto,
   };
 
   const updatedColor = {

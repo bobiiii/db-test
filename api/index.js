@@ -8,6 +8,7 @@ const cors = require('cors');
 const apiRoutes = require('../src/routes');
 const db = require('../src/DB/index');
 const { globalErrorHandler } = require('../src/utils/errorHandler');
+// const {  updateVarieties, updateVcolslug, updatecolor } = require('../src/models/addslug');
 
 db.startDB();
 app.use(express.json());
@@ -35,6 +36,9 @@ app.get('/', (req, res) => {
 // it will not work on vercel
 
 if (process.env.NODE_ENV === 'development') {
+  // updateVarieties()
+  // updateVcolslug()
+  // updatecolor()
   app.listen(process.env.PORT, () => {
     console.log(`server is running on localhost:${process.env.PORT}`);
   });

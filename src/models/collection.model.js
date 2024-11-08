@@ -5,6 +5,10 @@ const varietySchema = new mongooose.Schema({
   varietyName: {
     type: String,
   },
+  slug: {
+    type: String,
+    required: true,
+  },
   varietyCardImage: {
     type: String,
   },
@@ -38,6 +42,10 @@ const collectionSchema = new mongooose.Schema(
       required: true,
       trim: true,
       unique: true,
+    },
+    slug: {
+      type: String,
+      required: true,
     },
     collectionImage: {
       type: String,

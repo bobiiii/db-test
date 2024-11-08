@@ -5,6 +5,10 @@ const colorsSchema = new mongooose.Schema({
   colorName: {
     type: String,
   },
+  slug: {
+    type: String,
+    required: true,
+  },
   colorCardImage: {
     type: String,
   },
@@ -20,6 +24,10 @@ const kitchenSchema = new mongooose.Schema(
       required: true,
       trim: true,
       unique: true,
+    },
+    slug: {
+      type: String,
+      required: true,
     },
     cardImage: {
       type: String,
