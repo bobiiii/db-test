@@ -5,6 +5,7 @@ const kitchenModel = require('./kitchen.model');
 const bathroomModel = require('./bathroom.model');
 const queryModel = require('./query.model');
 const contactModel = require('./contact.model');
+const GalleryModel = require('./gallery.model');
 
 module.exports = {
   userModel,
@@ -14,4 +15,5 @@ module.exports = {
   bathroomModel,
   queryModel,
   contactModel,
+  GalleryModel,
 };
