@@ -14,18 +14,22 @@ db.startDB();
 app.use(express.json());
 app.use(bodyParser.urlencoded({ limit: '5000mb', extended: true }));
 app.use(bodyParser.json({ limit: '5000mb', extended: true }));
-// const corsOptions = {
-//   // origin:'https://abc.onrender.com',
-//   AccessControlAllowOrigin: '*',
-//   origin: '*',
-//   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-// };
-// app.use(cors('*'));
 
-app.use(cors({
-  origin: '*',
-}));
+app.use(
+  cors({
+    origin: [
+      'http://localhost:3000',
+      'https://sharifstone.com',
+      'https://www.sharifstone.com',
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    allowedHeaders:
+      'Origin, X-Requested-With, Content-Type, Accept, Authorization',
+  }),
+);
 
+app.use(cors());
 app.use('/api', apiRoutes);
 app.use(globalErrorHandler);
 app.get('/', (req, res) => {
