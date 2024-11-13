@@ -40,9 +40,6 @@ app.get('/', (req, res) => {
 // it will not work on vercel
 
 if (process.env.NODE_ENV === 'development') {
-  // updateVarieties()
-  // updateVcolslug()
-  // updatecolor()
   app.listen(process.env.PORT, () => {
     console.log(`server is running on localhost:${process.env.PORT}`);
   });
