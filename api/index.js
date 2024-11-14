@@ -10,7 +10,6 @@ const db = require('../src/DB/index');
 const { globalErrorHandler } = require('../src/utils/errorHandler');
 // const {  updateVarieties, updateVcolslug, updatecolor } = require('../src/models/addslug');
 
-db.startDB();
 app.use(express.json());
 app.use(bodyParser.urlencoded({ limit: '5000mb', extended: true }));
 app.use(bodyParser.json({ limit: '5000mb', extended: true }));
@@ -37,6 +36,13 @@ app.get('/', (req, res) => {
 });
 
 // only enable it in local environment
+if (process.env.NODE_ENV === 'production') {
+  app.listen(process.env.PORT, () => {
+    db.startDB();
+    console.log(`(Prod) server is running on localhost:${process.env.PORT}`);
+  });
+}
+
 // it will not work on vercel
 
 if (process.env.NODE_ENV === 'development') {
