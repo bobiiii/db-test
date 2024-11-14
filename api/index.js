@@ -20,6 +20,7 @@ app.use(
       'http://localhost:3000',
       'https://sharifstone.com',
       'https://www.sharifstone.com',
+      'https://sharif-dashboard-w3ml.vercel.app',
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
