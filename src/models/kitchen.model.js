@@ -29,6 +29,11 @@ const kitchenSchema = new mongooose.Schema(
       type: String,
       required: true,
     },
+    category: {
+      type: String,
+      enum: ['Kitchen', 'Bathroom'],
+      required: true,
+    },
     cardImage: {
       type: String,
       required: true,

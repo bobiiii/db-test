@@ -11,6 +11,7 @@ const visualizerRoutes = express.Router();
 visualizerRoutes.post('/add-kitchen', upload.any(), visualizerControllers.addKitchen);
 visualizerRoutes.get('/kitchens', visualizerControllers.kitchens);
 visualizerRoutes.get('/kitchen/:kitchenId', visualizerControllers.kitchen);
+visualizerRoutes.get('/single-kitchen', visualizerControllers.getSinglekitchen);
 visualizerRoutes.put('/update-kitchen/:kitchenId', upload.any(), visualizerControllers.updateKitchen);
 visualizerRoutes.delete('/delete-kitchen/:kitchenId', adminRoutes, visualizerControllers.deleteKitchen);
 visualizerRoutes.post('/kitchen/add-colors/:kitchenId', upload.any(), visualizerControllers.addKitchenColors);

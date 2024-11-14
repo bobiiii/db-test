@@ -1,6 +1,7 @@
 const {
   addKitchen,
   kitchens,
+  getSinglekitchen,
   kitchen,
   updateKitchen,
   deleteKitchen,
@@ -23,6 +24,7 @@ module.exports = {
   addKitchen,
   kitchen,
   kitchens,
+  getSinglekitchen,
   updateKitchen,
   deleteKitchen,
   addKitchenColors,

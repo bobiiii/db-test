@@ -42,7 +42,13 @@ const addKitchen = asyncHandler(async (req, res, next) => {
   return res.status(200).json({ message: 'Created successfully' });
 });
 const kitchens = asyncHandler(async (req, res, next) => {
-  const findKitchens = await kitchenModel.find({});
+  const { category } = req.query;
+
+  if (!category) {
+    return next(new ErrorHandler('Category as query is required', 404));
+  }
+
+  const findKitchens = await kitchenModel.find({ category });
 
   if (!findKitchens) {
     return next(new ErrorHandler('kitchens not found', 404));
@@ -58,6 +64,20 @@ const kitchen = asyncHandler(async (req, res, next) => {
   }
   return res.status(200).json({ data: kitchenData });
 });
+
+const getSinglekitchen = asyncHandler(async (req, res, next) => {
+  const { ambient } = req.query;
+  // console.log('ambient  ', ambient);
+
+  const kitchenData = await kitchenModel.find({ slug: ambient });
+
+  console.log(kitchenData);
+  if (!kitchenData) {
+    return next(new ErrorHandler('Kitchen not found', 404));
+  }
+  return res.status(200).json({ data: kitchenData });
+});
+
 const updateKitchen = asyncHandler(async (req, res, next) => {
   const { kitchenId } = req.params;
   const { files } = req;
@@ -517,6 +537,7 @@ module.exports = {
   addKitchen,
   kitchens,
   kitchen,
+  getSinglekitchen,
   updateKitchen,
   deleteKitchen,
   addKitchenColors,
