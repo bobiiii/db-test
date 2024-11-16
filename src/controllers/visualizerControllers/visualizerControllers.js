@@ -12,11 +12,11 @@ const {
 // bathroom Apis
 const addAmbient = asyncHandler(async (req, res, next) => {
   const { files } = req;
-  const { name } = req.body;
+  const { name, category } = req.body;
 
   const cardImage = files.find((item) => item.fieldname === 'cardImage');
 
-  if (!name || !cardImage) {
+  if (!name || !category || !cardImage) {
     return next(new ErrorHandler('Please fill all rewquired fields', 400));
   }
   if (!isImage(cardImage)) {
@@ -33,6 +33,7 @@ const addAmbient = asyncHandler(async (req, res, next) => {
   const ambient = await AmbientModel.create({
     name,
     slug: slugauto,
+    category,
     cardImage: cardImageId,
   });
 
@@ -78,7 +79,7 @@ const getSingleAmbient = asyncHandler(async (req, res, next) => {
 const updateAmbient = asyncHandler(async (req, res, next) => {
   const { ambientId } = req.params;
   const { files } = req;
-  const { name } = req.body;
+  const { name, category } = req.body;
 
   const cardImageFile = files.find((item) => item.fieldname === 'cardImage');
 
@@ -92,6 +93,10 @@ const updateAmbient = asyncHandler(async (req, res, next) => {
     updateFields.name = name;
     updateFields.slug = createSlug(name);
   }
+  if (category !== undefined) {
+    updateFields.category = category;
+  }
+
   if (cardImageFile !== undefined) {
     if (!isImage(cardImageFile)) {
       return next(new ErrorHandler('Only images are allowed', 400));
