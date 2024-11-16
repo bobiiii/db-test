@@ -12,95 +12,83 @@ const {
 } = require('../uploadImageController');
 
 const getAllGalleries = asyncHandler(async (req, res, next) => {
-  const galleries = await GalleryModel.find({});
+  const galleries = await GalleryModel.find();
   if (!galleries.length) {
     return next(new ErrorHandler('No galleries found!', 400));
   }
 
-  res.status(200).json(
+  return res.status(200).json(
     {
-      message: 'working',
+      message: 'Request successfull',
       data: galleries,
     },
   );
 });
 
-const getGallery = asyncHandler(async (req, res) => {
-  res.send('working');
+const getGalleryByCategory = asyncHandler(async (req, res, next) => {
+  const { category } = req.query;
+  const galleries = await GalleryModel.find({ category });
+  if (!galleries.length) {
+    return next(new ErrorHandler('No galleries found!', 400));
+  }
+
+  return res.status(200).json(
+    {
+      message: 'Request successfull',
+      data: galleries,
+    },
+  );
 });
 
 const createGallery = asyncHandler(async (req, res, next) => {
-  const { files } = req;
-  const { category, name, modalImages } = req.body;
+  const { name, category, galleryDetail } = req.body;
+  const parsedGalleryDetail = Array.isArray(galleryDetail)
+    ? galleryDetail
+    : JSON.parse(galleryDetail);
 
-  // Validate required fields
-  if (!category || !name) {
-    return next(new ErrorHandler('Please provide category and name fields', 400));
+  const mainImageFile = req.files.find((file) => file.fieldname === 'mainImage');
+  const galleryFiles = req.files.filter((file) => file.fieldname.startsWith('galleryDetail'));
+
+  let mainImageId = null;
+  if (mainImageFile) {
+    mainImageId = await uploadImageToDrive(mainImageFile);
   }
 
-  // Parse and validate modalImages data
-  let modalImagesData;
-  try {
-    modalImagesData = JSON.parse(modalImages); // Expecting modalImages as a JSON string
-  } catch (error) {
-    return next(new ErrorHandler('Invalid format for modal images', 400));
-  }
+  const galleryWithImages = await Promise.all(
+    parsedGalleryDetail.map(async (detail, index) => {
+      const imageFile = galleryFiles.find(
+        (file) => file.fieldname === `galleryDetail[${index}][image]`,
+      );
 
-  if (!Array.isArray(modalImagesData) || modalImagesData.length === 0) {
-    return next(new ErrorHandler('Modal images are required', 400));
-  }
+      const imageId = imageFile ? await uploadImageToDrive(imageFile) : null;
 
-  // Validate each modal image object
-  for (const [index, imageData] of modalImagesData.entries()) {
-    if (!imageData.applications || !imageData.location || !imageData.description) {
-      return next(new ErrorHandler(`Please provide all required fields for modal image ${index + 1}`, 400));
-    }
-  }
-
-  // Find the main image file
-  const mainGalleryImage = files.find((file) => file.fieldname === 'mainImage');
-  if (!mainGalleryImage || !isImage(mainGalleryImage)) {
-    return next(new ErrorHandler('Please provide a valid main image', 400));
-  }
-
-  // Upload main image
-  const mainImage = await uploadImageToDrive(mainGalleryImage);
-
-  // Upload each modal image and pair with its metadata
-  const uploadedModalImages = await Promise.all(
-    modalImagesData.map(async (imageData, index) => {
-      const modalImageFile = files.find((file) => file.fieldname === `modalImage${index + 1}`);
-      if (!modalImageFile || !isImage(modalImageFile)) {
-        return next(new ErrorHandler(`Invalid image file for modal image ${index + 1}`, 400));
-      }
-
-      const uploadedImageUrl = await uploadImageToDrive(modalImageFile);
       return {
-        ...imageData,
-        image: uploadedImageUrl,
+        ...detail,
+        imageId,
       };
     }),
   );
 
-  // Check if gallery with the same name exists
-  const verifyGallery = await GalleryModel.findOne({ name });
-  if (verifyGallery) {
-    return next(new ErrorHandler('Gallery already exists!', 400));
-  }
-
-  // Create the gallery
-  const gallery = await GalleryModel.create({
+  // Save to MongoDB
+  const newGallery = {
     name,
     category,
-    mainImage,
-    modalImages: uploadedModalImages,
-  });
+    mainImage: mainImageId,
+    modalImages: galleryWithImages,
+  };
+
+  const verifyGallery = await GalleryModel.findOne({ name });
+  if (verifyGallery) {
+    return next(new ErrorHandler('Gallery with this name already exists', 500));
+  }
+
+  const gallery = await GalleryModel.create(newGallery);
 
   if (!gallery) {
     return next(new ErrorHandler('Unable to add gallery!', 500));
   }
 
-  res.status(201).send({ message: 'Gallery created successfully' });
+  return res.status(201).send({ message: 'Gallery created successfully', data: gallery });
 });
 
 const deleteGallery = asyncHandler(async (req, res, next) => {
@@ -129,5 +117,5 @@ const updateGallery = asyncHandler(async (req, res, next) => {
 });
 
 module.exports = {
-  getAllGalleries, getGallery, createGallery, updateGallery, deleteGallery,
+  getAllGalleries, getGalleryByCategory, createGallery, updateGallery, deleteGallery,
 };

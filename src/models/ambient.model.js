@@ -5,9 +5,11 @@ const colorsSchema = new mongooose.Schema({
   colorName: {
     type: String,
   },
+  collectionName: {
+    type: String,
+  },
   slug: {
     type: String,
-    required: true,
   },
   colorCardImage: {
     type: String,

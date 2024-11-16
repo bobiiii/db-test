@@ -1,5 +1,5 @@
 const collectionModel = require('./collection.model');
-const kitchenModel = require('./kitchen.model');
+const AmbientModel = require('./ambient.model');
 
 const updateVarieties = async () => {
   console.log('variety slugf un');
@@ -55,7 +55,7 @@ const updateVcolslug = async () => {
 const updatecolor = async () => {
   console.log('coll slug');
 
-  await kitchenModel.updateMany({}, [
+  await AmbientModel.updateMany({}, [
     {
       $set: {
         colors: {

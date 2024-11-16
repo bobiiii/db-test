@@ -139,13 +139,13 @@ const addAmbientColors = asyncHandler(async (req, res, next) => {
   const { ambientId } = req.params;
   const { files } = req;
   const {
-    colorName,
+    colorName, collectionName,
   } = req.body;
 
   const colorCardImage = files.find((item) => item.fieldname === 'colorCardImage');
   const mainImage = files.find((item) => item.fieldname === 'mainImage');
 
-  if (!colorName || !colorCardImage || !mainImage) {
+  if (!colorName || !collectionName || !colorCardImage || !mainImage) {
     return next(new ErrorHandler('Please fill all rewquired fields', 400));
   }
 
@@ -166,6 +166,7 @@ const addAmbientColors = asyncHandler(async (req, res, next) => {
   const ambientColors = {
     colorName,
     slug: slugAuto,
+    collectionName,
     colorCardImage: colorCardImageRef,
     mainImage: mainImageRef,
   };

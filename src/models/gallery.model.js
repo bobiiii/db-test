@@ -8,7 +8,7 @@ const gallerySchema = new mongooose.Schema(
     },
     category: {
       type: String,
-      enum: ['kitchen', 'bathroom'],
+      enum: ['Kitchen', 'Bathroom'],
       required: true,
     },
     mainImage: {
@@ -16,7 +16,7 @@ const gallerySchema = new mongooose.Schema(
       required: true,
     },
     modalImages: [{
-      // imageId: { type: String, required: true },
+      imageId: { type: String, required: true },
       applications: { type: String, required: true },
       location: { type: String, required: true },
       description: { type: String, required: true },

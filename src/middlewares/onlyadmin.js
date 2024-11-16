@@ -12,7 +12,7 @@ const adminRoutes = asyncHandler(async (req, res, next) => {
   }
 
   const decoded = JWT.verify(token, process.env.SECRET_KEY);
-  console.log(decoded);
+  // console.log(decoded);
   if (!decoded) {
     return next(new ErrorHandler('Unauthorized - Invalid token', 401));
   }

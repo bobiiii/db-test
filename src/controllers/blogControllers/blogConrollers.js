@@ -12,7 +12,7 @@ const addBlogController = asyncHandler(async (req, res, next) => {
   const bannerImage = files.find((item) => item.fieldname === 'bannerImage');
   const imageOne = files.find((item) => item.fieldname === 'imageOne');
   const imageTwo = files.find((item) => item.fieldname === 'imageTwo');
-  console.log(files);
+  // console.log(files);
 
   let {
     // eslint-disable-next-line prefer-const, max-len
