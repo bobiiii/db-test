@@ -47,6 +47,6 @@ const kitchenSchema = new mongooose.Schema(
   },
 );
 
-const kitchenModel = mongooose.model('kitchens', kitchenSchema);
+const AmbientModel = mongooose.model('kitchens', kitchenSchema);
 
-module.exports = kitchenModel;
+module.exports = AmbientModel;

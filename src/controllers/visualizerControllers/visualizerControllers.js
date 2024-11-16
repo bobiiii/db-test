@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-vars */
-const { kitchenModel, bathroomModel } = require('../../models');
+const { AmbientModel, bathroomModel } = require('../../models');
 const { asyncHandler } = require('../../utils/asyncHandler');
 const { createSlug } = require('../../utils/createSlug');
 const { ErrorHandler } = require('../../utils/errorHandler');
@@ -10,84 +10,81 @@ const {
 } = require('../uploadImageController');
 
 // bathroom Apis
-const addKitchen = asyncHandler(async (req, res, next) => {
+const addAmbient = asyncHandler(async (req, res, next) => {
   const { files } = req;
   const { name } = req.body;
 
   const cardImage = files.find((item) => item.fieldname === 'cardImage');
 
   if (!name || !cardImage) {
-    return next(new ErrorHandler('please fill All rewquired fields', 400));
+    return next(new ErrorHandler('Please fill all rewquired fields', 400));
   }
   if (!isImage(cardImage)) {
     return next(new ErrorHandler('Only images are allowed', 400));
   }
-  const verifyKitchen = await kitchenModel.findOne({ name });
+  const slugauto = createSlug(name);
+  const verifyAmbient = await AmbientModel.findOne({ slug: slugauto });
 
-  if (verifyKitchen) {
-    return next(new ErrorHandler('Kitchen Already Exist', 400));
+  if (verifyAmbient) {
+    return next(new ErrorHandler('Ambient Already Exist by URL', 400));
   }
 
   const cardImageId = await uploadImageToDrive(cardImage);
-  const slugAuto = createSlug(name);
-  const kitchen = await kitchenModel.create({
+  const ambient = await AmbientModel.create({
     name,
-    slug: slugAuto,
+    slug: slugauto,
     cardImage: cardImageId,
   });
 
-  if (!kitchen) {
-    return next(new ErrorHandler('unable to create kitchen', 400));
+  if (!ambient) {
+    return next(new ErrorHandler('Unable to create ambient', 400));
   }
   return res.status(200).json({ message: 'Created successfully' });
 });
-const kitchens = asyncHandler(async (req, res, next) => {
+const getAmbients = asyncHandler(async (req, res, next) => {
   const { category } = req.query;
 
   if (!category) {
     return next(new ErrorHandler('Category as query is required', 404));
   }
 
-  const findKitchens = await kitchenModel.find({ category });
+  const findAmbients = await AmbientModel.find({ category });
 
-  if (!findKitchens) {
-    return next(new ErrorHandler('kitchens not found', 404));
+  if (!findAmbients) {
+    return next(new ErrorHandler('AMbients not found', 404));
   }
-  return res.status(200).json({ data: findKitchens });
+  return res.status(200).json({ data: findAmbients });
 });
-const kitchen = asyncHandler(async (req, res, next) => {
-  const { kitchenId } = req.params;
-  const kitchenData = await kitchenModel.findById(kitchenId);
+const getAmbient = asyncHandler(async (req, res, next) => {
+  const { ambientId } = req.params;
+  const ambientData = await AmbientModel.findById(ambientId);
 
-  if (!kitchenData) {
+  if (!ambientData) {
     return next(new ErrorHandler('Kitchen not found', 404));
   }
-  return res.status(200).json({ data: kitchenData });
+  return res.status(200).json({ data: ambientData });
 });
 
-const getSinglekitchen = asyncHandler(async (req, res, next) => {
+const getSingleAmbient = asyncHandler(async (req, res, next) => {
   const { ambient } = req.query;
-  // console.log('ambient  ', ambient);
+  const ambientnData = await AmbientModel.find({ slug: ambient });
 
-  const kitchenData = await kitchenModel.find({ slug: ambient });
-
-  console.log(kitchenData);
-  if (!kitchenData) {
+  if (!ambientnData) {
     return next(new ErrorHandler('Kitchen not found', 404));
   }
-  return res.status(200).json({ data: kitchenData });
+  return res.status(200).json({ data: ambientnData });
 });
 
-const updateKitchen = asyncHandler(async (req, res, next) => {
-  const { kitchenId } = req.params;
+const updateAmbient = asyncHandler(async (req, res, next) => {
+  const { ambientId } = req.params;
   const { files } = req;
   const { name } = req.body;
 
   const cardImageFile = files.find((item) => item.fieldname === 'cardImage');
 
-  const verifyKitchenId = await kitchenModel.findById(kitchenId);
-  if (!verifyKitchenId) {
-    return next(new ErrorHandler('Kitchen Not FOund', 400));
+  const verifyAmbient = await AmbientModel.findById(ambientId);
+  if (!verifyAmbient) {
+    return next(new ErrorHandler('Ambient Not FOund', 400));
   }
 
   const updateFields = {};
@@ -99,38 +96,42 @@ const updateKitchen = asyncHandler(async (req, res, next) => {
     if (!isImage(cardImageFile)) {
       return next(new ErrorHandler('Only images are allowed', 400));
     }
-    const fileId = verifyKitchenId.cardImage;
+    const fileId = verifyAmbient.cardImage;
     const updatedImg = await updateImageOnDrive(fileId, cardImageFile);
     updateFields.cardImage = updatedImg;
   }
 
-  const kitchenUpdated = await kitchenModel.findByIdAndUpdate(
-    kitchenId,
+  const ambientUpdated = await AmbientModel.findByIdAndUpdate(
+    ambientId,
     updateFields,
     { new: true },
   );
 
-  if (!kitchenUpdated) {
+  if (!ambientUpdated) {
     return next(new ErrorHandler('Unable To Update Kitchen', 500));
   }
-  return res.status(200).json({ message: 'kitchen Update Sucessfully' });
+  return res.status(200).json({ message: 'Ambient Updated Sucessfully' });
 });
-const deleteKitchen = asyncHandler(async (req, res, next) => {
-  const { kitchenId } = req.params;
-  const findKitchen = await kitchenModel.findById(kitchenId);
+const deleteAmbient = asyncHandler(async (req, res, next) => {
+  const { ambientId } = req.params;
+  const findAmbient = await AmbientModel.findById(ambientId);
 
-  if (!findKitchen) {
+  if (!findAmbient) {
     return next(new ErrorHandler('kitchen not found', 404));
   }
 
-  const { cardImage } = findKitchen;
+  const { cardImage } = findAmbient;
   await deleteImage(cardImage);
 
-  await kitchenModel.findByIdAndDelete(kitchenId);
+  const deleteAmbientDb = await AmbientModel.findByIdAndDelete(ambientId);
+
+  if (!deleteAmbientDb) {
+    return next(new ErrorHandler('Unable to delete ambient', 500));
+  }
   return res.status(200).json({ message: ' Deleted Successfully' });
 });
-const addKitchenColors = asyncHandler(async (req, res, next) => {
-  const { kitchenId } = req.params;
+const addAmbientColors = asyncHandler(async (req, res, next) => {
+  const { ambientId } = req.params;
   const { files } = req;
   const {
     colorName,
@@ -140,16 +141,16 @@ const addKitchenColors = asyncHandler(async (req, res, next) => {
   const mainImage = files.find((item) => item.fieldname === 'mainImage');
 
   if (!colorName || !colorCardImage || !mainImage) {
-    return next(new ErrorHandler('please fill All rewquired fields', 400));
+    return next(new ErrorHandler('Please fill all rewquired fields', 400));
   }
 
   if (!isImage(colorCardImage) || !isImage(mainImage)) {
     return next(new ErrorHandler('Only images are allowed', 400));
   }
 
-  const verifyKitchen = await kitchenModel.findById(kitchenId);
-  if (!verifyKitchen) {
-    return res.status(404).json({ message: 'kitchen not found' });
+  const verifyAmbient = await AmbientModel.findById(ambientId);
+  if (!verifyAmbient) {
+    return res.status(404).json({ message: 'Ambient not found' });
   }
 
   const colorCardImageRef = await uploadImageToDrive(colorCardImage);
@@ -157,49 +158,49 @@ const addKitchenColors = asyncHandler(async (req, res, next) => {
 
   const slugAuto = createSlug(colorName);
 
-  const bathroomColors = {
+  const ambientColors = {
     colorName,
     slug: slugAuto,
     colorCardImage: colorCardImageRef,
     mainImage: mainImageRef,
   };
 
-  verifyKitchen.colors.push(bathroomColors);
-  await verifyKitchen.save();
-  return res.status(200).json(({ message: 'kitchen Colors Created Successfully ' }));
+  verifyAmbient.colors.push(ambientColors);
+  await verifyAmbient.save();
+  return res.status(200).json(({ message: 'Ambient Colors Created Successfully ' }));
 });
-const kitchenColor = asyncHandler(async (req, res, next) => {
-  const { kitchencolorId } = req.params;
+const getAmbientColor = asyncHandler(async (req, res, next) => {
+  const { ambientcolorId } = req.params;
 
-  const kitchenColorData = await kitchenModel.findOne({ 'colors._id': kitchencolorId });
+  const ambientColorData = await AmbientModel.findOne({ 'colors._id': ambientcolorId });
 
-  if (!kitchenColorData) {
+  if (!ambientColorData) {
     return next(new ErrorHandler('Kitchen Not Found', 400));
   }
 
   // eslint-disable-next-line no-underscore-dangle, max-len
-  const kitchenFind = kitchenColorData.colors.find((color) => color._id.toString() === kitchencolorId);
+  const ambientFind = ambientColorData.colors.find((color) => color._id.toString() === ambientcolorId);
 
-  if (!kitchenFind) {
+  if (!ambientFind) {
     return next(new ErrorHandler('Kitchen Color Not Found', 400));
   }
 
-  return res.status(200).json({ data: kitchenFind });
+  return res.status(200).json({ data: ambientFind });
 });
-const updateKitchenColor = asyncHandler(async (req, res, next) => {
-  const { kitchencolorId } = req.params;
+const updateAmbientColor = asyncHandler(async (req, res, next) => {
+  const { ambientcolorId } = req.params;
   const { files } = req;
 
-  const findKitchenColor = await kitchenModel.findOne({ 'colors._id': kitchencolorId });
+  const findAmbientColor = await AmbientModel.findOne({ 'colors._id': ambientcolorId });
 
-  if (!findKitchenColor) {
-    return next(new ErrorHandler('Kitchen not found', 404));
+  if (!findAmbientColor) {
+    return next(new ErrorHandler('AMbient not found', 404));
   }
 
-  const kitchenColorIndex = findKitchenColor.colors.findIndex((item) => item._id.toString() === kitchencolorId);
+  const ambientColorIndex = findAmbientColor.colors.findIndex((item) => item._id.toString() === ambientcolorId);
 
-  if (kitchenColorIndex === -1) {
-    return next(new ErrorHandler('Kitchen Color not found', 404));
+  if (ambientColorIndex === -1) {
+    return next(new ErrorHandler('Ambient Color not found', 404));
   }
 
   const colorCardImageFile = files.find((item) => item.fieldname === 'colorCardImage');
@@ -208,7 +209,7 @@ const updateKitchenColor = asyncHandler(async (req, res, next) => {
   let colorCardImage;
   let mainImage;
 
-  const colors = findKitchenColor.colors[kitchenColorIndex];
+  const colors = findAmbientColor.colors[ambientColorIndex];
 
   if (colorCardImageFile !== undefined) {
     if (!isImage(colorCardImageFile)) {
@@ -248,309 +249,319 @@ const updateKitchenColor = asyncHandler(async (req, res, next) => {
     mainImage,
   };
 
-  findKitchenColor.colors[kitchenColorIndex] = updatedColor;
+  findAmbientColor.colors[ambientColorIndex] = updatedColor;
 
-  await findKitchenColor.save();
+  await findAmbientColor.save();
 
-  return res.status(200).json({ message: 'Kitchen Colors Updated' });
+  return res.status(200).json({ message: 'AMbient Colors Updated' });
 });
 
-const deleteKitchenColor = asyncHandler(async (req, res, next) => {
-  const { kitchencolorId } = req.params;
-  const findKitchen = await kitchenModel.findOne({ 'colors._id': kitchencolorId });
+const deleteAmbientColor = asyncHandler(async (req, res, next) => {
+  const { ambientcolorId } = req.params;
+  const findAmbient = await AmbientModel.findOne({ 'colors._id': ambientcolorId });
 
-  if (!findKitchen) {
+  if (!findAmbient) {
     return next(new ErrorHandler('kitchen Color Not Found', 400));
   }
 
-  const findKitchenColor = findKitchen.colors.find((item) => item.id === kitchencolorId);
+  const findAmbientColor = findAmbient.colors.find((item) => item.id === ambientcolorId);
   const {
     colorCardImage,
     mainImage,
     _id,
-  } = findKitchenColor;
+  } = findAmbientColor;
 
   await deleteImage(colorCardImage);
   await deleteImage(mainImage);
 
-  const kitchenColorDelete = findKitchen.colors.pull(_id);
+  const ambientColorDelete = findAmbient.colors.pull(_id);
 
-  if (!kitchenColorDelete) {
+  if (!ambientColorDelete) {
     return next(new ErrorHandler('kitchen Color Not Found', 400));
   }
 
-  await findKitchen.save();
-  return res.status(200).json(({ message: 'kitchen Color Deleted Successfully' }));
+  await findAmbient.save();
+  return res.status(200).json(({ message: 'Ambient Color Deleted Successfully' }));
 });
 // bathroom Apis
-const addBathroom = asyncHandler(async (req, res, next) => {
-  const { files } = req;
-  const { name } = req.body;
+// const addBathroom = asyncHandler(async (req, res, next) => {
+//   const { files } = req;
+//   const { name } = req.body;
 
-  const cardImage = files.find((item) => item.fieldname === 'cardImage');
+//   const cardImage = files.find((item) => item.fieldname === 'cardImage');
 
-  if (!name || !cardImage) {
-    return next(new ErrorHandler('please fill All rewquired fields', 400));
-  }
+//   if (!name || !cardImage) {
+//     return next(new ErrorHandler('please fill All rewquired fields', 400));
+//   }
 
-  if (!isImage(cardImage)) {
-    return next(new ErrorHandler('Only images are allowed', 400));
-  }
-  const verifyBathroom = await bathroomModel.findOne({ name });
+//   if (!isImage(cardImage)) {
+//     return next(new ErrorHandler('Only images are allowed', 400));
+//   }
+//   const verifyBathroom = await bathroomModel.findOne({ name });
 
-  if (verifyBathroom) {
-    return next(new ErrorHandler('Bathroom Already Exist', 400));
-  }
+//   if (verifyBathroom) {
+//     return next(new ErrorHandler('Bathroom Already Exist', 400));
+//   }
 
-  const cardImageId = await uploadImageToDrive(cardImage);
-  const slugAuto = createSlug(name);
-  const Bathroom = await bathroomModel.create({
-    name,
-    slug: slugAuto,
-    cardImage: cardImageId,
-  });
+//   const cardImageId = await uploadImageToDrive(cardImage);
+//   const slugAuto = createSlug(name);
+//   const Bathroom = await bathroomModel.create({
+//     name,
+//     slug: slugAuto,
+//     cardImage: cardImageId,
+//   });
 
-  if (!Bathroom) {
-    return next(new ErrorHandler('unable to create Bathroom', 400));
-  }
-  return res.status(200).json({ msg: 'Created successfully' });
-});
-const Bathrooms = asyncHandler(async (req, res, next) => {
-  const findBathrooms = await bathroomModel.find({});
+//   if (!Bathroom) {
+//     return next(new ErrorHandler('unable to create Bathroom', 400));
+//   }
+//   return res.status(200).json({ msg: 'Created successfully' });
+// });
+// const Bathrooms = asyncHandler(async (req, res, next) => {
+//   const findBathrooms = await bathroomModel.find({});
 
-  if (!findBathrooms) {
-    return next(new ErrorHandler('kitchens not found', 404));
-  }
-  return res.status(200).json({ data: findBathrooms });
-});
-const Bathroom = asyncHandler(async (req, res, next) => {
-  const { bathroomId } = req.params;
-  const bathroomData = await bathroomModel.findById(bathroomId);
+//   if (!findBathrooms) {
+//     return next(new ErrorHandler('kitchens not found', 404));
+//   }
+//   return res.status(200).json({ data: findBathrooms });
+// });
+// const Bathroom = asyncHandler(async (req, res, next) => {
+//   const { bathroomId } = req.params;
+//   const bathroomData = await bathroomModel.findById(bathroomId);
 
-  if (!bathroomData) {
-    return next(new ErrorHandler('Bathroom not found', 404));
-  }
-  return res.status(200).json({ data: bathroomData });
-});
-const updateBathroom = asyncHandler(async (req, res, next) => {
-  const { bathroomId } = req.params;
-  const { files } = req;
-  const { name } = req.body;
+//   if (!bathroomData) {
+//     return next(new ErrorHandler('Bathroom not found', 404));
+//   }
+//   return res.status(200).json({ data: bathroomData });
+// });
+// const updateBathroom = asyncHandler(async (req, res, next) => {
+//   const { bathroomId } = req.params;
+//   const { files } = req;
+//   const { name } = req.body;
 
-  const cardImageFile = files.find((item) => item.fieldname === 'cardImage');
+//   const cardImageFile = files.find((item) => item.fieldname === 'cardImage');
 
-  const verifyBathroomId = await bathroomModel.findById(bathroomId);
-  if (!verifyBathroomId) {
-    return next(new ErrorHandler('Bathroom Not FOund', 400));
-  }
+//   const verifyBathroomId = await bathroomModel.findById(bathroomId);
+//   if (!verifyBathroomId) {
+//     return next(new ErrorHandler('Bathroom Not FOund', 400));
+//   }
 
-  const updateFields = {};
-  if (name !== undefined) {
-    updateFields.name = name;
-    updateFields.slug = createSlug(name);
-  }
-  if (cardImageFile !== undefined) {
-    if (!isImage(cardImageFile)) {
-      return next(new ErrorHandler('Only images are allowed', 400));
-    }
-    const fileId = verifyBathroomId.cardImage;
-    const updatedImg = await updateImageOnDrive(fileId, cardImageFile);
-    updateFields.cardImage = updatedImg;
-  }
+//   const updateFields = {};
+//   if (name !== undefined) {
+//     updateFields.name = name;
+//     updateFields.slug = createSlug(name);
+//   }
+//   if (cardImageFile !== undefined) {
+//     if (!isImage(cardImageFile)) {
+//       return next(new ErrorHandler('Only images are allowed', 400));
+//     }
+//     const fileId = verifyBathroomId.cardImage;
+//     const updatedImg = await updateImageOnDrive(fileId, cardImageFile);
+//     updateFields.cardImage = updatedImg;
+//   }
 
-  const bathroomUpdated = await bathroomModel.findByIdAndUpdate(
-    bathroomId,
-    updateFields,
-    { new: true },
-  );
+//   const bathroomUpdated = await bathroomModel.findByIdAndUpdate(
+//     bathroomId,
+//     updateFields,
+//     { new: true },
+//   );
 
-  if (!bathroomUpdated) {
-    return next(new ErrorHandler('Unable To Update bathroom', 500));
-  }
-  return res.status(200).json({ message: 'bathroom Update Sucessfully' });
-});
-const deleteBathroom = asyncHandler(async (req, res, next) => {
-  const { bathroomId } = req.params;
-  const findbathroom = await bathroomModel.findById(bathroomId);
+//   if (!bathroomUpdated) {
+//     return next(new ErrorHandler('Unable To Update bathroom', 500));
+//   }
+//   return res.status(200).json({ message: 'bathroom Update Sucessfully' });
+// });
+// const deleteBathroom = asyncHandler(async (req, res, next) => {
+//   const { bathroomId } = req.params;
+//   const findbathroom = await bathroomModel.findById(bathroomId);
 
-  if (!findbathroom) {
-    return next(new ErrorHandler('Bathroom not found', 404));
-  }
+//   if (!findbathroom) {
+//     return next(new ErrorHandler('Bathroom not found', 404));
+//   }
 
-  const { cardImage } = findbathroom;
-  await deleteImage(cardImage);
+//   const { cardImage } = findbathroom;
+//   await deleteImage(cardImage);
 
-  await bathroomModel.findByIdAndDelete(bathroomId);
-  return res.status(200).json({ message: ' Deleted Successfully' });
-});
-const addBathroomColors = asyncHandler(async (req, res, next) => {
-  const { bathroomId } = req.params;
-  const { files } = req;
-  const {
-    colorName,
-  } = req.body;
+//   await bathroomModel.findByIdAndDelete(bathroomId);
+//   return res.status(200).json({ message: ' Deleted Successfully' });
+// });
+// const addBathroomColors = asyncHandler(async (req, res, next) => {
+//   const { bathroomId } = req.params;
+//   const { files } = req;
+//   const {
+//     colorName,
+//   } = req.body;
 
-  const colorCardImage = files.find((item) => item.fieldname === 'colorCardImage');
-  const mainImage = files.find((item) => item.fieldname === 'mainImage');
+//   const colorCardImage = files.find((item) => item.fieldname === 'colorCardImage');
+//   const mainImage = files.find((item) => item.fieldname === 'mainImage');
 
-  if (!colorName || !colorCardImage || !mainImage) {
-    return next(new ErrorHandler('please fill All rewquired fields', 400));
-  }
+//   if (!colorName || !colorCardImage || !mainImage) {
+//     return next(new ErrorHandler('please fill All rewquired fields', 400));
+//   }
 
-  if (!isImage(colorCardImage) || !isImage(mainImage)) {
-    return next(new ErrorHandler('Only images are allowed', 400));
-  }
-  const verifyBathroom = await bathroomModel.findById(bathroomId);
-  if (!verifyBathroom) {
-    return res.status(404).json({ message: 'Bathroom not found' });
-  }
+//   if (!isImage(colorCardImage) || !isImage(mainImage)) {
+//     return next(new ErrorHandler('Only images are allowed', 400));
+//   }
+//   const verifyBathroom = await bathroomModel.findById(bathroomId);
+//   if (!verifyBathroom) {
+//     return res.status(404).json({ message: 'Bathroom not found' });
+//   }
 
-  const colorCardImageRef = await uploadImageToDrive(colorCardImage);
-  const mainImageRef = await uploadImageToDrive(mainImage);
+//   const colorCardImageRef = await uploadImageToDrive(colorCardImage);
+//   const mainImageRef = await uploadImageToDrive(mainImage);
 
-  const slugAuto = createSlug(colorName);
-  const bathroomColors = {
-    colorName,
-    slug: slugAuto,
-    colorCardImage: colorCardImageRef,
-    mainImage: mainImageRef,
-  };
+//   const slugAuto = createSlug(colorName);
+//   const bathroomColors = {
+//     colorName,
+//     slug: slugAuto,
+//     colorCardImage: colorCardImageRef,
+//     mainImage: mainImageRef,
+//   };
 
-  verifyBathroom.colors.push(bathroomColors);
-  await verifyBathroom.save();
-  return res.status(200).json(({ message: 'Bathroom Colors Created Successfully ' }));
-});
-const bathroomColor = asyncHandler(async (req, res, next) => {
-  const { bathroomcolorId } = req.params;
+//   verifyBathroom.colors.push(bathroomColors);
+//   await verifyBathroom.save();
+//   return res.status(200).json(({ message: 'Bathroom Colors Created Successfully ' }));
+// });
+// const bathroomColor = asyncHandler(async (req, res, next) => {
+//   const { bathroomcolorId } = req.params;
 
-  const bathroomColorData = await bathroomModel.findOne({ 'colors._id': bathroomcolorId });
+//   const bathroomColorData = await bathroomModel.findOne({ 'colors._id': bathroomcolorId });
 
-  if (!bathroomColorData) {
-    return next(new ErrorHandler('Bathroom Not Found', 400));
-  }
+//   if (!bathroomColorData) {
+//     return next(new ErrorHandler('Bathroom Not Found', 400));
+//   }
 
-  // eslint-disable-next-line no-underscore-dangle, max-len
-  const bathroomFind = bathroomColorData.colors.find((color) => color._id.toString() === bathroomcolorId);
+//   // eslint-disable-next-line no-underscore-dangle, max-len
+//   const bathroomFind = bathroomColorData.colors.find((color) => color._id.toString() === bathroomcolorId);
 
-  if (!bathroomFind) {
-    return next(new ErrorHandler('Bathroom Color Not Found', 400));
-  }
+//   if (!bathroomFind) {
+//     return next(new ErrorHandler('Bathroom Color Not Found', 400));
+//   }
 
-  return res.status(200).json({ data: bathroomFind });
-});
-const updatebathroomColor = asyncHandler(async (req, res, next) => {
-  const { bathroomcolorId } = req.params;
-  const { files } = req;
+//   return res.status(200).json({ data: bathroomFind });
+// });
+// const updatebathroomColor = asyncHandler(async (req, res, next) => {
+//   const { bathroomcolorId } = req.params;
+//   const { files } = req;
 
-  const findbathroomColor = await bathroomModel.findOne({ 'colors._id': bathroomcolorId });
+//   const findbathroomColor = await bathroomModel.findOne({ 'colors._id': bathroomcolorId });
 
-  if (!findbathroomColor) {
-    return next(new ErrorHandler('bathroom not found', 404));
-  }
+//   if (!findbathroomColor) {
+//     return next(new ErrorHandler('bathroom not found', 404));
+//   }
 
-  const bathroomColorIndex = findbathroomColor.colors.findIndex((item) => item._id.toString() === bathroomcolorId);
+//   const bathroomColorIndex = findbathroomColor.colors.findIndex((item) => item._id.toString() === bathroomcolorId);
 
-  if (bathroomColorIndex === -1) {
-    return next(new ErrorHandler('bathroom Color not found', 404));
-  }
+//   if (bathroomColorIndex === -1) {
+//     return next(new ErrorHandler('bathroom Color not found', 404));
+//   }
 
-  const colorCardImageFile = files.find((item) => item.fieldname === 'colorCardImage');
-  const mainImageFile = files.find((item) => item.fieldname === 'mainImage');
+//   const colorCardImageFile = files.find((item) => item.fieldname === 'colorCardImage');
+//   const mainImageFile = files.find((item) => item.fieldname === 'mainImage');
 
-  let colorCardImage;
-  let mainImage;
+//   let colorCardImage;
+//   let mainImage;
 
-  const colors = findbathroomColor.colors[bathroomColorIndex];
+//   const colors = findbathroomColor.colors[bathroomColorIndex];
 
-  if (colorCardImageFile !== undefined) {
-    if (!isImage(colorCardImageFile)) {
-      return next(new ErrorHandler('Only images are allowed', 400));
-    }
-    const fileId = colors.colorCardImage;
-    const newColorCardImage = await updateImageOnDrive(fileId, colorCardImageFile);
-    colorCardImage = newColorCardImage;
-  } else {
-    colorCardImage = colors.colorCardImage;
-  }
+//   if (colorCardImageFile !== undefined) {
+//     if (!isImage(colorCardImageFile)) {
+//       return next(new ErrorHandler('Only images are allowed', 400));
+//     }
+//     const fileId = colors.colorCardImage;
+//     const newColorCardImage = await updateImageOnDrive(fileId, colorCardImageFile);
+//     colorCardImage = newColorCardImage;
+//   } else {
+//     colorCardImage = colors.colorCardImage;
+//   }
 
-  if (mainImageFile !== undefined) {
-    if (!isImage(mainImageFile)) {
-      return next(new ErrorHandler('Only images are allowed', 400));
-    }
-    const fileId = colors.mainImage;
-    const newMainImage = await updateImageOnDrive(fileId, mainImageFile);
-    mainImage = newMainImage;
-  } else {
-    mainImage = colors.mainImage;
-  }
-  let slugAuto;
-  if (req.body.colorName) {
-    slugAuto = createSlug(req.body.colorName);
-  }
-  const updatedColorDetails = {
-    colorName: req.body.colorName,
-    slug: slugAuto,
-  };
+//   if (mainImageFile !== undefined) {
+//     if (!isImage(mainImageFile)) {
+//       return next(new ErrorHandler('Only images are allowed', 400));
+//     }
+//     const fileId = colors.mainImage;
+//     const newMainImage = await updateImageOnDrive(fileId, mainImageFile);
+//     mainImage = newMainImage;
+//   } else {
+//     mainImage = colors.mainImage;
+//   }
+//   let slugAuto;
+//   if (req.body.colorName) {
+//     slugAuto = createSlug(req.body.colorName);
+//   }
+//   const updatedColorDetails = {
+//     colorName: req.body.colorName,
+//     slug: slugAuto,
+//   };
 
-  const updatedColor = {
-    ...colors.toObject(),
-    ...updatedColorDetails,
-    colorCardImage,
-    mainImage,
-  };
+//   const updatedColor = {
+//     ...colors.toObject(),
+//     ...updatedColorDetails,
+//     colorCardImage,
+//     mainImage,
+//   };
 
-  findbathroomColor.colors[bathroomColorIndex] = updatedColor;
+//   findbathroomColor.colors[bathroomColorIndex] = updatedColor;
 
-  await findbathroomColor.save();
+//   await findbathroomColor.save();
 
-  return res.status(200).json({ message: 'bathroom Colors Updated' });
-});
-const deletebathroomColor = asyncHandler(async (req, res, next) => {
-  const { bathroomcolorId } = req.params;
-  const findBathroom = await bathroomModel.findOne({ 'colors._id': bathroomcolorId });
+//   return res.status(200).json({ message: 'bathroom Colors Updated' });
+// });
+// const deletebathroomColor = asyncHandler(async (req, res, next) => {
+//   const { bathroomcolorId } = req.params;
+//   const findBathroom = await bathroomModel.findOne({ 'colors._id': bathroomcolorId });
 
-  if (!findBathroom) {
-    return next(new ErrorHandler('Bathroom Color Not Found', 400));
-  }
+//   if (!findBathroom) {
+//     return next(new ErrorHandler('Bathroom Color Not Found', 400));
+//   }
 
-  const findBathroomColor = findBathroom.colors.find((item) => item.id === bathroomcolorId);
-  const {
-    colorCardImage,
-    mainImage,
-    _id,
-  } = findBathroomColor;
+//   const findBathroomColor = findBathroom.colors.find((item) => item.id === bathroomcolorId);
+//   const {
+//     colorCardImage,
+//     mainImage,
+//     _id,
+//   } = findBathroomColor;
 
-  await deleteImage(colorCardImage);
-  await deleteImage(mainImage);
+//   await deleteImage(colorCardImage);
+//   await deleteImage(mainImage);
 
-  const bathroomColorDelete = findBathroom.colors.pull(_id);
+//   const bathroomColorDelete = findBathroom.colors.pull(_id);
 
-  if (!bathroomColorDelete) {
-    return next(new ErrorHandler('Bathroom Color Not Found', 400));
-  }
+//   if (!bathroomColorDelete) {
+//     return next(new ErrorHandler('Bathroom Color Not Found', 400));
+//   }
 
-  await findBathroom.save();
-  return res.status(200).json(({ message: 'Bathroom Color Deleted Successfully' }));
-});
+//   await findBathroom.save();
+//   return res.status(200).json(({ message: 'Bathroom Color Deleted Successfully' }));
+// });
 
 module.exports = {
-  addKitchen,
-  kitchens,
-  kitchen,
-  getSinglekitchen,
-  updateKitchen,
-  deleteKitchen,
-  addKitchenColors,
-  kitchenColor,
-  updateKitchenColor,
-  deleteKitchenColor,
-  addBathroom,
-  Bathrooms,
-  Bathroom,
-  updateBathroom,
-  deleteBathroom,
-  addBathroomColors,
-  bathroomColor,
-  updatebathroomColor,
-  deletebathroomColor,
+  // addKitchen,
+  // kitchens,
+  // kitchen,
+  // getSinglekitchen,
+  // updateKitchen,
+  // deleteKitchen,
+  // addKitchenColors,
+  // kitchenColor,
+  // updateKitchenColor,
+  // deleteKitchenColor,
+  addAmbient,
+  getAmbients,
+  getAmbient,
+  getSingleAmbient,
+  updateAmbient,
+  deleteAmbient,
+  addAmbientColors,
+  getAmbientColor,
+  updateAmbientColor,
+  deleteAmbientColor,
+  // addBathroom,
+  // Bathrooms,
+  // Bathroom,
+  // updateBathroom,
+  // deleteBathroom,
+  // addBathroomColors,
+  // bathroomColor,
+  // updatebathroomColor,
+  // deletebathroomColor,
 };
