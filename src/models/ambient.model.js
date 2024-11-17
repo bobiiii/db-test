@@ -33,7 +33,7 @@ const kitchenSchema = new mongooose.Schema(
     },
     category: {
       type: String,
-      enum: ['Kitchen', 'Bathroom'],
+      enum: ['KITCHEN', 'BATHROOM'],
       required: true,
     },
     cardImage: {

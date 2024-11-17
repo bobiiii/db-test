@@ -13,6 +13,7 @@ const {
 const addAmbient = asyncHandler(async (req, res, next) => {
   const { files } = req;
   const { name, category } = req.body;
+  console.log('api working');
 
   const cardImage = files.find((item) => item.fieldname === 'cardImage');
 
