@@ -9,7 +9,6 @@ const {
   uploadImageToDrive, deleteImage, updateImageOnDrive, isImage,
 } = require('../uploadImageController');
 
-// bathroom Apis
 const addAmbient = asyncHandler(async (req, res, next) => {
   const { files } = req;
   const { name, category } = req.body;
@@ -23,6 +22,7 @@ const addAmbient = asyncHandler(async (req, res, next) => {
   if (!isImage(cardImage)) {
     return next(new ErrorHandler('Only images are allowed', 400));
   }
+
   const slugauto = createSlug(name);
   const verifyAmbient = await AmbientModel.findOne({ slug: slugauto });
 
@@ -41,7 +41,7 @@ const addAmbient = asyncHandler(async (req, res, next) => {
   if (!ambient) {
     return next(new ErrorHandler('Unable to create ambient', 400));
   }
-  return res.status(200).json({ message: 'Created successfully' });
+  return res.status(200).json({ message: 'Created successfully', status: 'Success' });
 });
 const getAmbients = asyncHandler(async (req, res, next) => {
   const { category } = req.query;
@@ -55,7 +55,7 @@ const getAmbients = asyncHandler(async (req, res, next) => {
   if (!findAmbients) {
     return next(new ErrorHandler('AMbients not found', 404));
   }
-  return res.status(200).json({ data: findAmbients });
+  return res.status(200).json({ data: findAmbients, status: 'Success' });
 });
 const getAmbient = asyncHandler(async (req, res, next) => {
   const { ambientId } = req.params;
@@ -64,7 +64,7 @@ const getAmbient = asyncHandler(async (req, res, next) => {
   if (!ambientData) {
     return next(new ErrorHandler('Kitchen not found', 404));
   }
-  return res.status(200).json({ data: ambientData });
+  return res.status(200).json({ data: ambientData, status: 'Success' });
 });
 
 const getSingleAmbient = asyncHandler(async (req, res, next) => {
@@ -74,7 +74,7 @@ const getSingleAmbient = asyncHandler(async (req, res, next) => {
   if (!ambientnData) {
     return next(new ErrorHandler('Kitchen not found', 404));
   }
-  return res.status(200).json({ data: ambientnData });
+  return res.status(200).json({ data: ambientnData, status: 'Success' });
 });
 
 const updateAmbient = asyncHandler(async (req, res, next) => {
@@ -116,7 +116,7 @@ const updateAmbient = asyncHandler(async (req, res, next) => {
   if (!ambientUpdated) {
     return next(new ErrorHandler('Unable To Update Kitchen', 500));
   }
-  return res.status(200).json({ message: 'Ambient Updated Sucessfully' });
+  return res.status(200).json({ message: 'Ambient Updated Sucessfully', status: 'Success' });
 });
 const deleteAmbient = asyncHandler(async (req, res, next) => {
   const { ambientId } = req.params;
@@ -134,7 +134,7 @@ const deleteAmbient = asyncHandler(async (req, res, next) => {
   if (!deleteAmbientDb) {
     return next(new ErrorHandler('Unable to delete ambient', 500));
   }
-  return res.status(200).json({ message: ' Deleted Successfully' });
+  return res.status(200).json({ message: ' Deleted Successfully', status: 'Success' });
 });
 const addAmbientColors = asyncHandler(async (req, res, next) => {
   const { ambientId } = req.params;
@@ -174,7 +174,7 @@ const addAmbientColors = asyncHandler(async (req, res, next) => {
 
   verifyAmbient.colors.push(ambientColors);
   await verifyAmbient.save();
-  return res.status(200).json(({ message: 'Ambient Colors Created Successfully ' }));
+  return res.status(200).json(({ message: 'Ambient Colors Created Successfully ', status: 'Success' }));
 });
 const getAmbientColor = asyncHandler(async (req, res, next) => {
   const { ambientcolorId } = req.params;
@@ -192,7 +192,7 @@ const getAmbientColor = asyncHandler(async (req, res, next) => {
     return next(new ErrorHandler('Kitchen Color Not Found', 400));
   }
 
-  return res.status(200).json({ data: ambientFind });
+  return res.status(200).json({ data: ambientFind, status: 'Success' });
 });
 const updateAmbientColor = asyncHandler(async (req, res, next) => {
   const { ambientcolorId } = req.params;
@@ -260,7 +260,7 @@ const updateAmbientColor = asyncHandler(async (req, res, next) => {
 
   await findAmbientColor.save();
 
-  return res.status(200).json({ message: 'AMbient Colors Updated' });
+  return res.status(200).json({ message: 'AMbient Colors Updated', status: 'Success' });
 });
 
 const deleteAmbientColor = asyncHandler(async (req, res, next) => {
@@ -288,7 +288,7 @@ const deleteAmbientColor = asyncHandler(async (req, res, next) => {
   }
 
   await findAmbient.save();
-  return res.status(200).json(({ message: 'Ambient Color Deleted Successfully' }));
+  return res.status(200).json(({ message: 'Ambient Color Deleted Successfully', status: 'Success' }));
 });
 // bathroom Apis
 // const addBathroom = asyncHandler(async (req, res, next) => {

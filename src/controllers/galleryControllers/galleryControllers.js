@@ -19,6 +19,7 @@ const getAllGalleries = asyncHandler(async (req, res, next) => {
 
   return res.status(200).json(
     {
+      status: 'Success',
       message: 'Request successfull',
       data: galleries,
     },
@@ -34,6 +35,7 @@ const getGalleryByCategory = asyncHandler(async (req, res, next) => {
 
   return res.status(200).json(
     {
+      status: 'Success',
       message: 'Request successfull',
       data: galleries,
     },
@@ -88,7 +90,7 @@ const createGallery = asyncHandler(async (req, res, next) => {
     return next(new ErrorHandler('Unable to add gallery!', 500));
   }
 
-  return res.status(201).send({ message: 'Gallery created successfully', data: gallery });
+  return res.status(201).json({ status: 'Success', message: 'Gallery created successfully', data: gallery });
 });
 
 const deleteGallery = asyncHandler(async (req, res, next) => {
@@ -110,7 +112,7 @@ const deleteGallery = asyncHandler(async (req, res, next) => {
   await deleteImage(gallery.mainImage);
   await Promise.all(gallery.modalImages.map(async (image) => deleteImage(image.imageId)));
 
-  res.status(200).send({ message: 'Gallery deleted successfully' });
+  res.status(200).json({ status: 'Success', message: 'Gallery deleted successfully' });
 });
 
 const updateGallery = asyncHandler(async (req, res, next) => {
