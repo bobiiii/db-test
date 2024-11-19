@@ -16,8 +16,6 @@ const { createSlug } = require('../../utils/createSlug');
 const addCollection = asyncHandler(async (req, res, next) => {
   const { files } = req;
   const { collectionName } = req.body;
-  console.log("body", req?.body);
-  console.log("file", req?.files);
 
   const collectionImage = files.find(
     (item) => item.fieldname === 'collectionImage',
@@ -55,7 +53,7 @@ const addCollection = asyncHandler(async (req, res, next) => {
   if (!collection) {
     return next(new ErrorHandler('unable to create collection', 400));
   }
-  return res.status(200).json({ message: 'Created successfully' });
+  return res.status(200).json({ message: 'Created successfully', status: 'Success' });
 });
 
 const getCollection = asyncHandler(async (req, res, next) => {
