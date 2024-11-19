@@ -116,7 +116,7 @@ const updateAmbient = asyncHandler(async (req, res, next) => {
   if (!ambientUpdated) {
     return next(new ErrorHandler('Unable To Update Kitchen', 500));
   }
-  return res.status(200).json({ message: 'Ambient Updated Sucessfully', status: 'Success' });
+  return res.status(200).json({ message: 'Ambient Updated Sucessfully', status: 'Success', data: ambientUpdated });
 });
 const deleteAmbient = asyncHandler(async (req, res, next) => {
   const { ambientId } = req.params;
@@ -173,8 +173,8 @@ const addAmbientColors = asyncHandler(async (req, res, next) => {
   };
 
   verifyAmbient.colors.push(ambientColors);
-  await verifyAmbient.save();
-  return res.status(200).json(({ message: 'Ambient Colors Created Successfully ', status: 'Success' }));
+  const ambient = await verifyAmbient.save();
+  return res.status(200).json(({ message: 'Ambient Colors Created Successfully ', status: 'Success', data: ambient }));
 });
 const getAmbientColor = asyncHandler(async (req, res, next) => {
   const { ambientcolorId } = req.params;
@@ -258,9 +258,9 @@ const updateAmbientColor = asyncHandler(async (req, res, next) => {
 
   findAmbientColor.colors[ambientColorIndex] = updatedColor;
 
-  await findAmbientColor.save();
+  const updatedAmbient = await findAmbientColor.save();
 
-  return res.status(200).json({ message: 'AMbient Colors Updated', status: 'Success' });
+  return res.status(200).json({ message: 'AMbient Colors Updated', status: 'Success', data: updatedAmbient });
 });
 
 const deleteAmbientColor = asyncHandler(async (req, res, next) => {
@@ -287,8 +287,8 @@ const deleteAmbientColor = asyncHandler(async (req, res, next) => {
     return next(new ErrorHandler('kitchen Color Not Found', 400));
   }
 
-  await findAmbient.save();
-  return res.status(200).json(({ message: 'Ambient Color Deleted Successfully', status: 'Success' }));
+  const deletedAmbient = await findAmbient.save();
+  return res.status(200).json(({ message: 'Ambient Color Deleted Successfully', status: 'Success', data: deletedAmbient }));
 });
 // bathroom Apis
 // const addBathroom = asyncHandler(async (req, res, next) => {
