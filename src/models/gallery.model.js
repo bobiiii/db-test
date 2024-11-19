@@ -16,10 +16,10 @@ const gallerySchema = new mongooose.Schema(
       required: true,
     },
     modalImages: [{
-      imageId: { type: String, required: true },
-      applications: { type: String, required: true },
-      location: { type: String, required: true },
-      description: { type: String, required: true },
+      imageId: { type: String },
+      applications: { type: String },
+      location: { type: String },
+      description: { type: String },
 
     }],
   },
