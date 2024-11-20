@@ -7,6 +7,7 @@ const queriesControllers = require('./queriesControllers');
 const newsletterControllers = require('./newsletterControllers');
 const contactControllers = require('./contactControllers');
 const galleryControllers = require('./galleryControllers');
+const metadataControllers = require('./metadataControllers');
 const { uploadImageToDrive } = require('./uploadImageController');
 
 module.exports = {
@@ -20,4 +21,5 @@ module.exports = {
   newsletterControllers,
   contactControllers,
   galleryControllers,
+  metadataControllers,
 };
