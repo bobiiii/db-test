@@ -3,7 +3,7 @@ const mongooose = require('mongoose');
 
 const contactSchema = new mongooose.Schema(
   {
-    location: {
+    address: {
       type: String,
       required: true,
       trim: true,
@@ -13,12 +13,7 @@ const contactSchema = new mongooose.Schema(
       required: true,
       trim: true,
     },
-    firstname: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    lastname: {
+    fullName: {
       type: String,
       required: true,
       trim: true,
