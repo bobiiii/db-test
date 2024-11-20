@@ -134,7 +134,7 @@ const updateCollection = asyncHandler(async (req, res, next) => {
   if (!collection) {
     return next(new ErrorHandler('Unable To Update Collection', 500));
   }
-  return res.status(200).json({ msg: 'collection Update Sucessfully' });
+  return res.status(200).json({ message: 'collection Update Successfully', status: 'Success', data: collection });
 });
 
 const deleteCollection = asyncHandler(async (req, res, next) => {
@@ -150,7 +150,7 @@ const deleteCollection = asyncHandler(async (req, res, next) => {
   // await deleteImage(dropDownImage);
 
   await collectionModel.findByIdAndDelete(collectionId);
-  return res.status(200).json({ message: ' Deleted Successfully' });
+  return res.status(200).json({ message: ' Deleted Successfully', status: "Success" });
 });
 
 const getCollections = asyncHandler(async (req, res, next) => {
@@ -235,7 +235,7 @@ const addCollectionVariety = asyncHandler(async (req, res, next) => {
 
   collection.variety.push(varietyDetails);
   const variety = await collection.save();
-  return res.status(200).json({ message: 'Variety Created Successfully ' });
+  return res.status(200).json({ message: 'Variety Created Successfully', status: 'Success' });
 });
 
 const updateCollectionVariety = asyncHandler(async (req, res, next) => {
@@ -371,8 +371,8 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
   };
 
   await collection.save();
-
-  return res.status(200).json({ message: 'Variety Updated' });
+  const updatedVariety = collection.variety[varietyIndex];
+  return res.status(200).json({ message: 'Variety Updated', status: 'Success', data: updatedVariety });
 });
 
 const deleteCollectionVariety = asyncHandler(async (req, res, next) => {
@@ -403,7 +403,7 @@ const deleteCollectionVariety = asyncHandler(async (req, res, next) => {
 
   await collection.save();
 
-  return res.status(200).json({ message: 'Variety Deleted Successfully' });
+  return res.status(200).json({ message: 'Variety Deleted Successfully', status: 'Success' });
 });
 
 const getCollectionVariety = asyncHandler(async (req, res, next) => {

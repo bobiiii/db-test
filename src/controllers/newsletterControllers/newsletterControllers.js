@@ -27,7 +27,7 @@ const deleteNewsletter = asyncHandler(async (req, res, next) => {
   if (!newsletters) {
     next(new ErrorHandler('No Emails Found', 500));
   }
-  return res.status(200).json({ message: 'Email deleted successfully' });
+  return res.status(200).json({ message: 'Email deleted successfully', status: 'Success' });
 });
 
 module.exports = {
