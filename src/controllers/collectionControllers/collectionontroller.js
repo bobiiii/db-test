@@ -16,19 +16,21 @@ const { createSlug } = require('../../utils/createSlug');
 const addCollection = asyncHandler(async (req, res, next) => {
   const { files } = req;
   const { collectionName } = req.body;
+  console.log("body", req?.body);
+  console.log("file", req?.files);
 
   const collectionImage = files.find(
     (item) => item.fieldname === 'collectionImage',
   );
-  const dropDownImage = files.find(
-    (item) => item.fieldname === 'dropDownImage',
-  );
+  // const dropDownImage = files.find(
+  //   (item) => item.fieldname === 'dropDownImage',
+  // );
 
-  if (!collectionName || !collectionImage || !dropDownImage) {
+  if (!collectionName || !collectionImage) {
     return next(new ErrorHandler('please fill All rewquired fields', 400));
   }
 
-  if (!isImage(collectionImage) || !isImage(dropDownImage)) {
+  if (!isImage(collectionImage)) {
     return next(new ErrorHandler('Only images are allowed', 400));
   }
 
@@ -39,7 +41,7 @@ const addCollection = asyncHandler(async (req, res, next) => {
   }
 
   const collectionImageId = await uploadImageToDrive(collectionImage);
-  const dropDownImageId = await uploadImageToDrive(dropDownImage);
+  // const dropDownImageId = await uploadImageToDrive(dropDownImage);
 
   const slugAuto = createSlug(collectionName);
 
@@ -47,7 +49,7 @@ const addCollection = asyncHandler(async (req, res, next) => {
     collectionName,
     slug: slugAuto,
     collectionImage: collectionImageId,
-    dropDownImage: dropDownImageId,
+    // dropDownImage: dropDownImageId,
   });
 
   if (!collection) {
@@ -94,9 +96,9 @@ const updateCollection = asyncHandler(async (req, res, next) => {
   const collectionImageFile = files.find(
     (item) => item.fieldname === 'collectionImage',
   );
-  const dropDownImageFile = files.find(
-    (item) => item.fieldname === 'dropDownImage',
-  );
+  // const dropDownImageFile = files.find(
+  //   (item) => item.fieldname === 'dropDownImage',
+  // );
 
   const verifyCollectionId = await collectionModel.findById(collectionId);
   if (!verifyCollectionId) {
@@ -116,14 +118,14 @@ const updateCollection = asyncHandler(async (req, res, next) => {
     const updatedImg = await updateImageOnDrive(fileId, collectionImageFile);
     updateFields.collectionImage = updatedImg;
   }
-  if (dropDownImageFile !== undefined) {
-    if (!isImage(dropDownImageFile)) {
-      return next(new ErrorHandler('Only images are allowed', 400));
-    }
-    const fileId = verifyCollectionId.dropDownImage;
-    const updatedImg = await updateImageOnDrive(fileId, dropDownImageFile);
-    updateFields.dropDownImage = updatedImg;
-  }
+  // if (dropDownImageFile !== undefined) {
+  //   if (!isImage(dropDownImageFile)) {
+  //     return next(new ErrorHandler('Only images are allowed', 400));
+  //   }
+  //   const fileId = verifyCollectionId.dropDownImage;
+  //   const updatedImg = await updateImageOnDrive(fileId, dropDownImageFile);
+  //   updateFields.dropDownImage = updatedImg;
+  // }
 
   const collection = await collectionModel.findByIdAndUpdate(
     collectionId,
@@ -145,9 +147,9 @@ const deleteCollection = asyncHandler(async (req, res, next) => {
     return next(new ErrorHandler('Collection not found', 404));
   }
 
-  const { collectionImage, dropDownImage } = collection;
+  const { collectionImage } = collection;
   await deleteImage(collectionImage);
-  await deleteImage(dropDownImage);
+  // await deleteImage(dropDownImage);
 
   await collectionModel.findByIdAndDelete(collectionId);
   return res.status(200).json({ message: ' Deleted Successfully' });
