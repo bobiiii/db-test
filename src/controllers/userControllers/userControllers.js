@@ -11,6 +11,9 @@ const addUserController = asyncHandler(async (req, res, next) => {
     name, email, password, role,
   } = req.body;
 
+  console.log("body", req.body);
+
+
   if (!name || !email || !password || !role) {
     return next(new ErrorHandler('Please fill all required fields', 400));
   }
@@ -30,7 +33,7 @@ const addUserController = asyncHandler(async (req, res, next) => {
   if (!addUserDB) {
     return next(new ErrorHandler('Unable to add user', 500));
   }
-  return res.status(200).json({ message: 'User added successfully' });
+  return res.status(200).json({ message: 'User added successfully', status: 'Success' });
 });
 
 const loginUserController = asyncHandler(async (req, res, next) => {
@@ -97,7 +100,7 @@ const deleteUser = asyncHandler(async (req, res, next) => {
   if (!user) {
     next(new ErrorHandler('No user found ', 400));
   }
-  return res.status(200).json({ message: 'User deleted successfully' });
+  return res.status(200).json({ message: 'User deleted successfully' ,status:'Success'});
 });
 
 module.exports = {
