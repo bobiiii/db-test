@@ -112,12 +112,117 @@ const deleteGallery = asyncHandler(async (req, res, next) => {
   await deleteImage(gallery.mainImage);
   await Promise.all(gallery.modalImages.map(async (image) => deleteImage(image.imageId)));
 
-  res.status(200).json({ status: 'Success', message: 'Gallery deleted successfully' });
+  return res.status(200).json({ status: 'Success', message: 'Gallery deleted successfully' });
 });
 
 const updateGallery = asyncHandler(async (req, res, next) => {
+  const { galleryId } = req.params; // Gallery ID
+  const { name, category } = req.body; // Details to update
+  // const { files } = req;
+  // const openGraphImage = files.find((item) => item.fieldname === 'ogImage');
+
+  // Find the gallery by ID
+  const gallery = await GalleryModel.findById(galleryId);
+  if (!gallery) {
+    return next(new ErrorHandler('Gallery not found', 404));
+  }
+
+  // Check if a gallery with the same name already exists (excluding current gallery)
+  if (name && name !== gallery.name) {
+    const existingGallery = await GalleryModel.findOne({ name, _id: { $ne: galleryId } });
+    if (existingGallery) {
+      return next(new ErrorHandler('Gallery with this name already exists', 400));
+    }
+  }
+
+  const mainImageFile = req.files.find((file) => file.fieldname === 'mainImage');
+
+  let newimageId;
+  if (mainImageFile) {
+    newimageId = await updateImageOnDrive(gallery.mainImage, mainImageFile);
+    if (!newimageId) {
+      return next(new ErrorHandler('Unable to update gallery main Image', 400));
+    }
+  }
+
+  // Update the gallery details
+  gallery.name = name || gallery.name;
+  gallery.category = category || gallery.category;
+  gallery.mainImage = newimageId || gallery.mainImage;
+
+  const updatedGallery = await gallery.save();
+
+  if (!updatedGallery) {
+    return next(new ErrorHandler('Unable to update gallery details!', 500));
+  }
+
+  return res.status(200).json({
+    status: 'Success',
+    message: 'Gallery details updated successfully',
+    data: updatedGallery,
+  });
+});
+
+const updateGalleryImage = asyncHandler(async (req, res, next) => {
+  const { modalId } = req.params; // Extract gallery and image IDs
+  const { applications, location, description } = req.body; // Metadata updates
+
+  // Find the gallery by ID
+  const gallery = await GalleryModel.findOne({
+    'modalImages._id': modalId,
+  });
+  if (!gallery) {
+    return next(new ErrorHandler('Gallery not found', 404));
+  }
+
+  // Find the specific image in the modalImages array
+  const imageIndex = gallery.modalImages.findIndex(
+    // eslint-disable-next-line no-underscore-dangle
+    (image) => image._id.toString() === modalId,
+  );
+
+  if (imageIndex === -1) {
+    return next(new ErrorHandler('Image not found in gallery', 404));
+  }
+
+  const imageFile = req.file;
+  const oldImageId = gallery.modalImages[imageIndex].imageId; // Retain the current image ID
+  let newImageId;
+  if (imageFile) {
+    // Upload new image
+    newImageId = await updateImageOnDrive(oldImageId, imageFile);
+  }
+
+  // Update image metadata
+  gallery.modalImages[imageIndex] = {
+    // ...gallery.modalImages[imageIndex],
+    // eslint-disable-next-line no-underscore-dangle
+    _id: gallery.modalImages[imageIndex]._id,
+    imageId: newImageId || gallery.modalImages[imageIndex].imageId,
+    applications: applications || gallery.modalImages[imageIndex].applications,
+    location: location || gallery.modalImages[imageIndex].location,
+    description: description || gallery.modalImages[imageIndex].description,
+  };
+
+  // Save updated gallery
+  const updatedGallery = await gallery.save();
+
+  if (!updatedGallery) {
+    return next(new ErrorHandler('Unable to update image in gallery!', 500));
+  }
+
+  return res.status(200).json({
+    status: 'Success',
+    message: 'Image updated successfully',
+    data: updatedGallery.modalImages[imageIndex], // Return the updated image
+  });
 });
 
 module.exports = {
-  getAllGalleries, getGalleryByCategory, createGallery, updateGallery, deleteGallery,
+  getAllGalleries,
+  getGalleryByCategory,
+  createGallery,
+  updateGallery,
+  updateGalleryImage,
+  deleteGallery,
 };

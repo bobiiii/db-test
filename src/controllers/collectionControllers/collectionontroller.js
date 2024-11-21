@@ -70,13 +70,14 @@ const newArrivals = asyncHandler(async (req, res, next) => {
   const collections = await collectionModel.aggregate([
     { $unwind: '$variety' }, // Flatten variety arrays
     { $sort: { 'variety.createdAt': -1 } }, // Sort by variety creation date
-    { $limit: 15 }, // Limit to 15 varieties
+    { $limit: 15 },
     {
       $project: {
         _id: 0,
         variety: 1,
+        slug: 1,
       },
-    }, // Return only variety documents
+    },
   ]);
 
   if (!collections || collections.length === 0) {
