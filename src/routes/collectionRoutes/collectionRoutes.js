@@ -9,7 +9,7 @@ const collectionRoute = express.Router();
 
 collectionRoute.get('/', collectionControllers.getCollections);
 collectionRoute.post('/add-collection', upload.any(), collectionControllers.addCollection);
-collectionRoute.get('/:collectionId', collectionControllers.getCollection);
+collectionRoute.get('/:collectionSlug', collectionControllers.getCollection);
 collectionRoute.put('/update-collection/:collectionId', upload.any(), collectionControllers.updateCollection);
 collectionRoute.delete('/delete-collection/:collectionId', adminRoutes, collectionControllers.deleteCollection);
 collectionRoute.get('/new/arrivals', collectionControllers.newArrivals);
@@ -18,6 +18,6 @@ collectionRoute.get('/new/arrivals', collectionControllers.newArrivals);
 collectionRoute.post('/variety/:collectionId/add-variety', upload.any(), collectionControllers.addCollectionVariety);
 collectionRoute.put('/variety/update-variety/:varietyId', upload.any(), collectionControllers.updateCollectionVariety);
 collectionRoute.delete('/variety/delete-variety/:varietyId', adminRoutes, collectionControllers.deleteCollectionVariety);
-collectionRoute.get('/variety/:varietyId', collectionControllers.getCollectionVariety);
+collectionRoute.get('/variety/:varietySlug', collectionControllers.getCollectionVariety);
 
 module.exports = collectionRoute;

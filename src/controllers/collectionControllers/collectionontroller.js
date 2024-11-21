@@ -57,13 +57,13 @@ const addCollection = asyncHandler(async (req, res, next) => {
 });
 
 const getCollection = asyncHandler(async (req, res, next) => {
-  const { collectionId } = req.params;
-  const collection = await collectionModel.findById(collectionId);
+  const { collectionSlug } = req.params;
+  const collection = await collectionModel.findByOne({ slug: collectionSlug });
 
   if (!collection) {
     return next(new ErrorHandler('Collection not found', 404));
   }
-  return res.status(200).json({ data: collection });
+  return res.status(200).json({ status: 'Success', data: collection });
 });
 
 const newArrivals = asyncHandler(async (req, res, next) => {
@@ -83,7 +83,7 @@ const newArrivals = asyncHandler(async (req, res, next) => {
     return next(new ErrorHandler('Collections not found', 404));
   }
 
-  return res.status(200).json({ data: collections });
+  return res.status(200).json({ status: 'Success', data: collections });
 });
 
 const updateCollection = asyncHandler(async (req, res, next) => {
@@ -150,7 +150,7 @@ const deleteCollection = asyncHandler(async (req, res, next) => {
   // await deleteImage(dropDownImage);
 
   await collectionModel.findByIdAndDelete(collectionId);
-  return res.status(200).json({ message: ' Deleted Successfully', status: "Success" });
+  return res.status(200).json({ message: ' Deleted Successfully', status: 'Success' });
 });
 
 const getCollections = asyncHandler(async (req, res, next) => {
@@ -159,7 +159,7 @@ const getCollections = asyncHandler(async (req, res, next) => {
   if (!collections) {
     return next(new ErrorHandler('Collections not found', 404));
   }
-  return res.status(200).json({ data: collections });
+  return res.status(200).json({ status: 'Success', data: collections });
 });
 
 // eslint-disable-next-line consistent-return
@@ -235,7 +235,7 @@ const addCollectionVariety = asyncHandler(async (req, res, next) => {
 
   collection.variety.push(varietyDetails);
   const variety = await collection.save();
-  return res.status(200).json({ message: 'Variety Created Successfully', status: 'Success' });
+  return res.status(200).json({ data: variety, message: 'Variety Created Successfully', status: 'Success' });
 });
 
 const updateCollectionVariety = asyncHandler(async (req, res, next) => {
@@ -407,10 +407,10 @@ const deleteCollectionVariety = asyncHandler(async (req, res, next) => {
 });
 
 const getCollectionVariety = asyncHandler(async (req, res, next) => {
-  const { varietyId } = req.params;
+  const { varietySlug } = req.params;
 
   const collection = await collectionModel.findOne({
-    'variety._id': varietyId,
+    slug: varietySlug,
   });
 
   if (!collection) {
@@ -419,7 +419,7 @@ const getCollectionVariety = asyncHandler(async (req, res, next) => {
 
   // eslint-disable-next-line no-underscore-dangle
   const variety = collection.variety.find(
-    (variety) => variety._id.toString() === varietyId,
+    (variety) => variety.slug === varietySlug,
   );
 
   if (!variety) {
