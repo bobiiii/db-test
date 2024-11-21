@@ -12,11 +12,11 @@ const createContact = asyncHandler(async (req, res, next) => {
 
   let {
     // eslint-disable-next-line prefer-const
-    location, zipcode, firstname, lastname, email, mobile, subject, message, checked,
+    address, zipcode, fullName, email, mobile, subject, message, checked,
   } = req.body;
 
   // eslint-disable-next-line max-len
-  if (!location || !zipcode || !email || !firstname || !lastname || !mobile || !subject || !message || !upload || !checked) {
+  if (!address || !zipcode || !email || !fullName || !mobile || !subject || !message || !upload || !checked) {
     return next(new ErrorHandler('Please fill all required fields', 400));
   }
 
@@ -27,10 +27,9 @@ const createContact = asyncHandler(async (req, res, next) => {
   const uploadId = await uploadImageToDrive(upload);
 
   const addContactDB = contactModel.create({
-    location,
+    address,
     zipcode,
-    firstname,
-    lastname,
+    fullName,
     email,
     mobile,
     subject,
@@ -58,7 +57,7 @@ const createContact = asyncHandler(async (req, res, next) => {
     html: `
       <html>
         <body>
-          <p>Dear ${firstname},</p>
+          <p>Dear ${fullName},</p>
           <p>Thank you for contacting Sharif Stone. We have received your message and will get back to you shortly.</p>
           <p>Regards,</p>
           <p>Team Sharif Stone</p>
@@ -83,7 +82,7 @@ const createContact = asyncHandler(async (req, res, next) => {
           <p>Hello Admin,</p>
           <p>A new user has contacted through the Sharif Stone website. Here are the details:</p>
           <ul>
-            <li>Name: ${firstname} ${lastname}</li>
+            <li>Name: ${fullName}</li>
             <li>Email: ${email}</li>
             <li>Mobile: ${mobile}</li>
             <li>Message: ${message}</li>
@@ -101,7 +100,7 @@ const createContact = asyncHandler(async (req, res, next) => {
     }
   });
 
-  return res.status(200).json({ message: 'contact added successfully' });
+  return res.status(200).json({ status: 'Success', message: 'contact added successfully' });
 });
 
 const getContact = asyncHandler(async (req, res, next) => {
@@ -119,7 +118,7 @@ const getAllContacts = asyncHandler(async (req, res, next) => {
   if (!contacts) {
     next(new ErrorHandler('No contacts found ', 400));
   }
-  return res.status(200).json({ data: contacts });
+  return res.status(200).json({ status: 'Success', data: contacts });
 });
 const deleteContact = asyncHandler(async (req, res, next) => {
   const { contactId } = req.params;
@@ -133,7 +132,7 @@ const deleteContact = asyncHandler(async (req, res, next) => {
   await deleteImage(upload);
   await contactModel.findByIdAndDelete(contactId);
 
-  return res.status(200).json({ message: 'contact successfully deleted' });
+  return res.status(200).json({ status: 'Success', message: 'contact successfully deleted' });
 });
 
 module.exports = {
