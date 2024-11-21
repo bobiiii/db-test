@@ -19,6 +19,7 @@ app.use(
     origin: [
       'http://localhost:3000',
       'https://sharifstone.com',
+      'https://sharif-stone-frontend.vercel.app',
       'https://www.sharifstone.com',
       'https://sharif-dashboard-w3ml.vercel.app',
     ],
