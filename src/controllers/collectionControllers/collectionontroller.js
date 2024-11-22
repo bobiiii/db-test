@@ -410,9 +410,11 @@ const deleteCollectionVariety = asyncHandler(async (req, res, next) => {
 
 const getCollectionVariety = asyncHandler(async (req, res, next) => {
   const { varietySlug } = req.params;
+  console.log("params", req.params);
+
 
   const collection = await collectionModel.findOne({
-    slug: varietySlug,
+    "variety.slug": varietySlug,
   });
 
   if (!collection) {
