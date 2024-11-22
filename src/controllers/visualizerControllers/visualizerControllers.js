@@ -43,6 +43,18 @@ const addAmbient = asyncHandler(async (req, res, next) => {
   }
   return res.status(200).json({ message: 'Created successfully', status: 'Success' });
 });
+
+const getAllAmbients = asyncHandler(async (req, res, next) => {
+
+  const findAmbients = await AmbientModel.find({});
+
+  if (!findAmbients) {
+    return next(new ErrorHandler('AMbients not found', 404));
+  }
+  return res.status(200).json({ data: findAmbients, status: 'Success' });
+});
+
+
 const getAmbients = asyncHandler(async (req, res, next) => {
   const { category } = req.query;
 
@@ -557,6 +569,7 @@ module.exports = {
   getAmbient,
   getSingleAmbient,
   updateAmbient,
+  getAllAmbients,
   deleteAmbient,
   addAmbientColors,
   getAmbientColor,

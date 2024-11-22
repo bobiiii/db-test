@@ -11,6 +11,7 @@ const visualizerRoutes = express.Router();
 // kitchen Routes
 visualizerRoutes.post('/add-ambient', upload.any(), visualizerControllers.addAmbient);
 visualizerRoutes.get('/ambients', visualizerControllers.getAmbients);
+visualizerRoutes.get('/get-all-ambients', visualizerControllers.getAllAmbients);
 visualizerRoutes.get('/ambient/:ambientId', visualizerControllers.getAmbient);
 visualizerRoutes.get('/single-ambient', visualizerControllers.getSingleAmbient);
 visualizerRoutes.put('/update-ambient/:ambientId', upload.any(), visualizerControllers.updateAmbient);
