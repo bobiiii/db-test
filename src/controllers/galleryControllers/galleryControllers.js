@@ -42,6 +42,23 @@ const getGalleryByCategory = asyncHandler(async (req, res, next) => {
   );
 });
 
+
+const getSingleGalleryById = asyncHandler(async (req, res, next) => {
+  const { galleryId } = req.params;
+  const gallery = await GalleryModel.findById(galleryId);
+  if (!gallery) {
+    return next(new ErrorHandler('No galleries found!', 400));
+  }
+
+  return res.status(200).json(
+    {
+      status: 'Success',
+      message: 'Request successfull',
+      data: gallery,
+    },
+  );
+});
+
 const createGallery = asyncHandler(async (req, res, next) => {
   const { name, category, galleryDetail } = req.body;
   const parsedGalleryDetail = Array.isArray(galleryDetail)
@@ -224,5 +241,6 @@ module.exports = {
   createGallery,
   updateGallery,
   updateGalleryImage,
+  getSingleGalleryById,
   deleteGallery,
 };
