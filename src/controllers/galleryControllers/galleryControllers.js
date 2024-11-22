@@ -42,7 +42,6 @@ const getGalleryByCategory = asyncHandler(async (req, res, next) => {
   );
 });
 
-
 const getSingleGalleryById = asyncHandler(async (req, res, next) => {
   const { galleryId } = req.params;
   const gallery = await GalleryModel.findById(galleryId);
@@ -130,6 +129,36 @@ const deleteGallery = asyncHandler(async (req, res, next) => {
   await Promise.all(gallery.modalImages.map(async (image) => deleteImage(image.imageId)));
 
   return res.status(200).json({ status: 'Success', message: 'Gallery deleted successfully' });
+});
+
+const deleteGalleryModal = asyncHandler(async (req, res, next) => {
+  const { modalId } = req.body;
+
+  if (!modalId) {
+    return next(new ErrorHandler('modalId is required', 400));
+  }
+
+  // Find the gallery containing the modal image
+  const gallery = await GalleryModel.findOne({ 'modalImages._id': modalId });
+
+  if (!gallery) {
+    return next(new ErrorHandler('Gallery or Modal Image not found', 404));
+  }
+
+  // Remove the modal image
+  gallery.modalImages = gallery.modalImages.filter(
+    // eslint-disable-next-line no-underscore-dangle
+    (image) => image._id.toString() !== modalId,
+  );
+
+  // Save the updated gallery
+  await gallery.save();
+
+  return res.status(200).json({
+    status: 'Success',
+    message: 'Modal Image deleted successfully',
+    data: gallery,
+  });
 });
 
 const updateGallery = asyncHandler(async (req, res, next) => {
@@ -243,4 +272,5 @@ module.exports = {
   updateGalleryImage,
   getSingleGalleryById,
   deleteGallery,
+  deleteGalleryModal,
 };

@@ -1,6 +1,6 @@
 const {
   getAllGalleries, getGalleryByCategory, createGallery,
-  updateGallery, updateGalleryImage, deleteGallery, getSingleGalleryById,
+  updateGallery, updateGalleryImage, deleteGallery, deleteGalleryModal, getSingleGalleryById,
 } = require('./galleryControllers');
 
 module.exports = {
@@ -11,4 +11,5 @@ module.exports = {
   updateGalleryImage,
   getSingleGalleryById,
   deleteGallery,
+  deleteGalleryModal,
 };

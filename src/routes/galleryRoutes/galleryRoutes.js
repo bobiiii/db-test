@@ -13,6 +13,7 @@ galleryRoute.get('/gallery/:galleryId', galleryControllers.getSingleGalleryById)
 galleryRoute.post('/create-gallery', upload.any(), galleryControllers.createGallery);
 galleryRoute.put('/update-gallery/:galleryId', upload.any(), galleryControllers.updateGallery);
 galleryRoute.put('/update-gallery-modal/:modalId', upload.any(), galleryControllers.updateGalleryImage);
+galleryRoute.delete('/delete-gallery-modal/:modalId', galleryControllers.deleteGalleryModal);
 galleryRoute.delete('/delete-gallery/:galleryId', galleryControllers.deleteGallery);
 
-    module.exports = galleryRoute;
+module.exports = galleryRoute;
