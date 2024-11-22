@@ -132,7 +132,7 @@ const deleteGallery = asyncHandler(async (req, res, next) => {
 });
 
 const deleteGalleryModal = asyncHandler(async (req, res, next) => {
-  const { modalId } = req.body;
+  const { modalId } = req.params;
 
   if (!modalId) {
     return next(new ErrorHandler('modalId is required', 400));
