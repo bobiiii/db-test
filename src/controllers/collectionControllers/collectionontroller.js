@@ -57,13 +57,15 @@ const addCollection = asyncHandler(async (req, res, next) => {
 });
 
 const getCollection = asyncHandler(async (req, res, next) => {
-  const { collectionSlug } = req.params;
-  const collection = await collectionModel.findByOne({ slug: collectionSlug });
+  const { slug } = req.params;
+
+  const collection = await collectionModel.findOne({ slug });
+  console.log("collection", collection);
 
   if (!collection) {
     return next(new ErrorHandler('Collection not found', 404));
   }
-  return res.status(200).json({ status: 'Success', data: collection });
+  return res.status(200).json({ data: collection });
 });
 
 const newArrivals = asyncHandler(async (req, res, next) => {

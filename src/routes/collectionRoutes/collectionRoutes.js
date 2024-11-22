@@ -9,7 +9,7 @@ const collectionRoute = express.Router();
 
 collectionRoute.get('/', collectionControllers.getCollections);
 collectionRoute.post('/add-collection', upload.any(), collectionControllers.addCollection);
-collectionRoute.get('/:collectionSlug', collectionControllers.getCollection);
+collectionRoute.get('/:slug', collectionControllers.getCollection);
 collectionRoute.put('/update-collection/:collectionId', upload.any(), collectionControllers.updateCollection);
 collectionRoute.delete('/delete-collection/:collectionId', adminRoutes, collectionControllers.deleteCollection);
 collectionRoute.get('/new/arrivals', collectionControllers.newArrivals);
