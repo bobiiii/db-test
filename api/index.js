@@ -23,7 +23,7 @@ app.use(
       'https://sharif-stone-frontend.vercel.app',
       'https://www.sharifstone.com',
       'https://sharif-dashboard-w3ml.vercel.app',
-      'https://master.deamd160utbn6.amplifyapp.com/',
+      'https://master.deamd160utbn6.amplifyapp.com',
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
