@@ -60,7 +60,6 @@ const getCollection = asyncHandler(async (req, res, next) => {
   const { slug } = req.params;
 
   const collection = await collectionModel.findOne({ slug });
-  console.log("collection", collection);
 
   if (!collection) {
     return next(new ErrorHandler('Collection not found', 404));
