@@ -11,7 +11,7 @@ const createNewsletter = asyncHandler(async (req, res, next) => {
   if (!added) {
     next(new ErrorHandler('Unable to add email to database', 500));
   }
-  return res.status(200).json({ message: 'Email added successfully' });
+  return res.status(200).json({ message: 'Thank you for subscribing!', status: 'Success' });
 });
 const getAllNewsletter = asyncHandler(async (req, res, next) => {
   const newsletters = await newsletterModel.find({});
