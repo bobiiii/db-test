@@ -7,11 +7,17 @@ const createNewsletter = asyncHandler(async (req, res, next) => {
   if (!email) {
     return next(new ErrorHandler('Please provide valid email', 400));
   }
+
+  const exist = await newsletterModel.findOne({ email });
+  if (exist) {
+    return next(new ErrorHandler('You are already subscribed to our newsletters!', 400));
+  }
+
   const added = await newsletterModel.create({ email });
   if (!added) {
     next(new ErrorHandler('Unable to add email to database', 500));
   }
-  return res.status(200).json({ message: 'Thank you for subscribing!', status: 'Success' });
+  return res.status(200).json({ message: 'Thank You for being a part of Sharifstone!', status: 'Success' });
 });
 const getAllNewsletter = asyncHandler(async (req, res, next) => {
   const newsletters = await newsletterModel.find({});

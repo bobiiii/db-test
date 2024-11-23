@@ -16,7 +16,7 @@ const createContact = asyncHandler(async (req, res, next) => {
   } = req.body;
 
   // eslint-disable-next-line max-len
-  if (!address || !zipcode || !email || !fullName || !mobile || !subject || !message || !upload || !checked) {
+  if (!address || !zipcode || !email || !fullName || !mobile || !subject || !message || !upload) {
     return next(new ErrorHandler('Please fill all required fields', 400));
   }
 
@@ -100,7 +100,7 @@ const createContact = asyncHandler(async (req, res, next) => {
     }
   });
 
-  return res.status(200).json({ status: 'Success', message: 'contact added successfully' });
+  return res.status(200).json({ status: 'Success', message: 'Thank Your! We will get back to you soon.' });
 });
 
 const getContact = asyncHandler(async (req, res, next) => {
