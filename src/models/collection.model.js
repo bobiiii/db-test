@@ -52,10 +52,10 @@ const collectionSchema = new mongooose.Schema(
       required: true,
       trim: true,
     },
-    // dropDownImage: {
-    //   type: String,
-    //   required: true,
-    // },
+    dropDownImage: {
+      type: String,
+      required: true,
+    },
     variety: [varietySchema],
   },
   {
