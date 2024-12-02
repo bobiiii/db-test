@@ -18,7 +18,10 @@ app.use(
   cors({
     origin: [
       'http://localhost:3000',
+      'http://localhost:3001',
       'https://sharifstone.com',
+      'https://sharif-stone-dashboard.vercel.app',
+      'https://master.d2u1pm0dta5ggo.amplifyapp.com',
       'https://dashboard.sharifstone.com',
       'https://sharif-stone-frontend.vercel.app',
       'https://www.sharifstone.com',
