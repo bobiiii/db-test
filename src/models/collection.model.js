@@ -37,6 +37,11 @@ const varietySchema = new mongooose.Schema({
 
 const collectionSchema = new mongooose.Schema(
   {
+    collectionHeading: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     collectionName: {
       type: String,
       required: true,
