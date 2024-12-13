@@ -42,6 +42,12 @@ const collectionSchema = new mongooose.Schema(
       required: true,
       trim: true,
     },
+    collectionDescription: {
+      type: String,
+      required: true,
+      trim: true,
+
+    },
     collectionName: {
       type: String,
       required: true,

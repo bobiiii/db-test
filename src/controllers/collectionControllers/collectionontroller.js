@@ -15,7 +15,7 @@ const { createSlug } = require('../../utils/createSlug');
 
 const addCollection = asyncHandler(async (req, res, next) => {
   const { files } = req;
-  const { collectionName, collectionHeading } = req.body;
+  const { collectionName, collectionHeading, collectionDescription } = req.body;
 
   const collectionImage = files.find(
     (item) => item.fieldname === 'collectionImage',
@@ -24,7 +24,7 @@ const addCollection = asyncHandler(async (req, res, next) => {
     (item) => item.fieldname === 'dropDownImage',
   );
 
-  if (!collectionName || !collectionImage || !collectionHeading) {
+  if (!collectionName || !collectionImage || !collectionHeading || !collectionDescription) {
     return next(new ErrorHandler('please fill All rewquired fields', 400));
   }
 
@@ -46,6 +46,7 @@ const addCollection = asyncHandler(async (req, res, next) => {
   const collection = await collectionModel.create({
     collectionName,
     collectionHeading,
+    collectionDescription,
     slug: slugAuto,
     collectionImage: collectionImageId,
     dropDownImage: dropDownImageId,
@@ -92,7 +93,7 @@ const newArrivals = asyncHandler(async (req, res, next) => {
 const updateCollection = asyncHandler(async (req, res, next) => {
   const { collectionId } = req.params;
   const { files } = req;
-  const { collectionName, collectionHeading } = req.body;
+  const { collectionName, collectionHeading, collectionDescription } = req.body;
 
   const collectionImageFile = files.find(
     (item) => item.fieldname === 'collectionImage',
@@ -114,6 +115,10 @@ const updateCollection = asyncHandler(async (req, res, next) => {
 
   if (collectionHeading !== undefined) {
     updateFields.collectionHeading = collectionHeading;
+  }
+
+  if (collectionDescription !== undefined) {
+    updateFields.collectionDescription = collectionDescription;
   }
 
   if (collectionImageFile !== undefined) {
