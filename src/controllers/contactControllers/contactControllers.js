@@ -39,7 +39,7 @@ const createContact = asyncHandler(async (req, res, next) => {
   });
 
   if (!addContactDB) {
-    next(new ErrorHandler('Unable to add contact', 500));
+    next(new ErrorHandler('An Error Occured!', 500));
   }
 
   const transporter = nodemailer.createTransport({
@@ -48,6 +48,7 @@ const createContact = asyncHandler(async (req, res, next) => {
       user: process.env.AUTH,
       pass: process.env.PASSWORD,
     },
+    replyTo: email,
   });
 
   const mailOptions = {
@@ -73,14 +74,18 @@ const createContact = asyncHandler(async (req, res, next) => {
   });
 
   const adminMailOptions = {
-    from: process.env.AUTH,
-    to: process.env.ADMIN_EMAIL,
-    subject: 'New Contact Form Submission on Sharif Stone Website',
+    from: process.env.email,
+    to: process.env.AUTH,
+    subject: 'New Contact Form Submission on SharifStone! ',
     html: `
       <html>
         <body>
-          <p>Hello Admin,</p>
+          <p>This is a template message from Sharifstone server</p>
           <p>A new user has contacted through the Sharif Stone website. Here are the details:</p>
+          <br>
+          <p>Please check dashboard for further details:</p>
+          <br>
+          <br>
           <ul>
             <li>Name: ${fullName}</li>
             <li>Email: ${email}</li>
@@ -96,11 +101,11 @@ const createContact = asyncHandler(async (req, res, next) => {
 
   transporter.sendMail(adminMailOptions, (error) => {
     if (error) {
-      console.error('Error sending email to admin:', error);
+      console.error('Oops! An Error Occured during contact submission', error);
     }
   });
 
-  return res.status(200).json({ status: 'Success', message: 'Thank Your! We will get back to you soon.' });
+  return res.status(200).json({ status: 'Success', message: 'WE GOT YOU! We will back to you soon.' });
 });
 
 const getContact = asyncHandler(async (req, res, next) => {
