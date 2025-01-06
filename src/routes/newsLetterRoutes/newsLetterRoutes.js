@@ -5,7 +5,7 @@ const { adminRoutes } = require('../../middlewares');
 const newsLetterRoute = express.Router();
 
 newsLetterRoute.post('/add-newsletter', newsletterControllers.createNewsletter);
-newsLetterRoute.get('/', newsletterControllers.getAllNewsletter);
+newsLetterRoute.get('/', adminRoutes, newsletterControllers.getAllNewsletter);
 newsLetterRoute.delete('/delete-newsletter/:newsletterId', adminRoutes, newsletterControllers.deleteNewsletter);
 
 module.exports = newsLetterRoute;
