@@ -11,8 +11,8 @@ const { globalErrorHandler } = require('../src/utils/errorHandler');
 // const {  updateVarieties, updateVcolslug, updatecolor } = require('../src/models/addslug');
 
 app.use(express.json());
-app.use(bodyParser.urlencoded({ limit: '5000mb', extended: true }));
-app.use(bodyParser.json({ limit: '5000mb', extended: true }));
+app.use(bodyParser.urlencoded({ limit: '500mb', extended: true }));
+app.use(bodyParser.json({ limit: '500mb', extended: true }));
 
 app.use(
   cors({
@@ -20,13 +20,13 @@ app.use(
       'http://localhost:3000',
       'http://localhost:3001',
       'https://sharifstone.com',
-      'https://sharif-stone-dashboard.vercel.app',
-      'https://master.d2u1pm0dta5ggo.amplifyapp.com',
-      'https://dashboard.sharifstone.com',
-      'https://sharif-stone-frontend.vercel.app',
       'https://www.sharifstone.com',
-      'https://sharif-dashboard-w3ml.vercel.app',
-      'https://master.deamd160utbn6.amplifyapp.com',
+      'https://dashboard.sharifstone.com',
+      // 'https://sharif-stone-dashboard.vercel.app',
+      // 'https://master.d2u1pm0dta5ggo.amplifyapp.com',
+      // 'https://sharif-stone-frontend.vercel.app',
+      // 'https://sharif-dashboard-w3ml.vercel.app',
+      // 'https://master.deamd160utbn6.amplifyapp.com',
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
