@@ -14,11 +14,11 @@ visualizerRoutes.get('/ambients', visualizerControllers.getAmbients);
 visualizerRoutes.get('/get-all-ambients', visualizerControllers.getAllAmbients);
 visualizerRoutes.get('/ambient/:ambientId', visualizerControllers.getAmbient);
 visualizerRoutes.get('/single-ambient', visualizerControllers.getSingleAmbient);
-visualizerRoutes.put('/update-ambient/:ambientId', adminRoutes, upload.any(), visualizerControllers.updateAmbient);
+visualizerRoutes.put('/update-ambient/:ambientId', upload.any(), visualizerControllers.updateAmbient);
 visualizerRoutes.delete('/delete-ambient/:ambientId', adminRoutes, visualizerControllers.deleteAmbient);
 visualizerRoutes.post('/ambient/add-colors/:ambientId', adminRoutes, upload.any(), visualizerControllers.addAmbientColors);
 visualizerRoutes.get('/ambient/ambient-colors/:ambientcolorId', visualizerControllers.getAmbientColor);
-visualizerRoutes.put('/ambient/update-color/:ambientcolorId', adminRoutes, upload.any(), visualizerControllers.updateAmbientColor);
+visualizerRoutes.put('/ambient/update-color/:ambientcolorId', upload.any(), visualizerControllers.updateAmbientColor);
 visualizerRoutes.delete('/ambient/delete-color/:ambientcolorId', adminRoutes, visualizerControllers.deleteAmbientColor);
 
 // Bathroom Routes
