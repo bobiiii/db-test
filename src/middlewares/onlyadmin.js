@@ -7,6 +7,7 @@ const { userModel } = require('../models');
 // eslint-disable-next-line consistent-return
 const adminRoutes = asyncHandler(async (req, res, next) => {
   const { token } = req.headers;
+  // console.log("token", token);
 
   if (!token) {
     return next(new ErrorHandler('Unauthorized - No token provided', 401));
