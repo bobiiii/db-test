@@ -1,9 +1,9 @@
 const createSlug = (name) => name
   .trim()
-  .toLowerCase()
   .replace(/\s+/g, '-')
   .replace(/[^a-z0-9-]/g, '-')
-  .replace(/-+/g, '-');
+  .replace(/-+/g, '-')
+  .toUpperCase();
 
 module.exports = {
   createSlug,
