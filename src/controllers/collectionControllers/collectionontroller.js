@@ -187,59 +187,61 @@ const getCollections = asyncHandler(async (req, res, next) => {
 const addCollectionVariety = asyncHandler(async (req, res, next) => {
   const { collectionId } = req.params;
   const { files } = req;
-  const {
-    varietyName, description, grip, mate, thickness,
-  } = req.body;
+  const { varietyName, description, grip, mate, thickness } = req.body;
 
-  const varietyCardImage = files.find(
-    (item) => item.fieldname === 'varietyCardImage',
-  );
-  const fullSlabImage = files.find(
-    (item) => item.fieldname === 'fullSlabImage',
-  );
-  const closeLookUp = files.find((item) => item.fieldname === 'closeLookUp');
-  const instalLook = files.find((item) => item.fieldname === 'instalLook');
-
+  // Check for required fields
   if (
-    !varietyCardImage
-    || !fullSlabImage
-    || !closeLookUp
-    || !instalLook
-    || !varietyName
-    || !description
-    || !grip
-    || !mate
-    || !thickness
+    !varietyName ||
+    !description ||
+    !grip ||
+    !mate ||
+    !thickness ||
+    !files.find((item) => item.fieldname === 'varietyCardImage') ||
+    !files.find((item) => item.fieldname === 'fullSlabImage') ||
+    !files.find((item) => item.fieldname === 'closeLookUp') ||
+    !files.find((item) => item.fieldname === 'instalLook')
   ) {
-    return next(new ErrorHandler('please fill All rewquired fields', 400));
+    return next(new ErrorHandler('Please fill all required fields', 400));
   }
 
-  const verifyVariety = await collectionModel.findOne({ varietyName });
-
-  if (verifyVariety) {
-    return next(new ErrorHandler('Variety Already Exist', 400));
-  }
-
-  if (
-    !isImage(varietyCardImage)
-    || !isImage(fullSlabImage)
-    || !isImage(closeLookUp)
-    || !isImage(instalLook)
-  ) {
-    return next(new ErrorHandler('Only images are allowed', 400));
-  }
+  // Validate if the variety name already exists
   const collection = await collectionModel.findById(collectionId);
   if (!collection) {
     return res.status(404).json({ message: 'Collection not found' });
   }
 
+  const varietyExists = collection.variety.some(
+    (variety) => variety.varietyName.toLowerCase() === varietyName.toLowerCase()
+  );
+  if (varietyExists) {
+    return next(new ErrorHandler('Variety already exists', 400));
+  }
+
+  // Validate file types
+  const varietyCardImage = files.find((item) => item.fieldname === 'varietyCardImage');
+  const fullSlabImage = files.find((item) => item.fieldname === 'fullSlabImage');
+  const closeLookUp = files.find((item) => item.fieldname === 'closeLookUp');
+  const instalLook = files.find((item) => item.fieldname === 'instalLook');
+
+  if (
+    !isImage(varietyCardImage) ||
+    !isImage(fullSlabImage) ||
+    !isImage(closeLookUp) ||
+    !isImage(instalLook)
+  ) {
+    return next(new ErrorHandler('Only images are allowed', 400));
+  }
+
+  // Upload images to the drive
   const varietyCardImageRef = await uploadImageToDrive(varietyCardImage);
   const fullSlabImageRef = await uploadImageToDrive(fullSlabImage);
   const closeLookUpRef = await uploadImageToDrive(closeLookUp);
   const instalLookRef = await uploadImageToDrive(instalLook);
 
+  // Create slug for variety name
   const slugAuto = createSlug(varietyName);
 
+  // Define variety details
   const varietyDetails = {
     varietyName,
     slug: slugAuto,
@@ -253,178 +255,175 @@ const addCollectionVariety = asyncHandler(async (req, res, next) => {
     thickness,
   };
 
-  collection.variety.push(varietyDetails);
-  const variety = await collection.save();
-  return res.status(200).json({ data: variety, message: 'Variety Created Successfully', status: 'Success' });
+  // Update collection with the new variety
+  const updatedCollection = await collectionModel.findByIdAndUpdate(
+    collectionId,
+    { $push: { variety: varietyDetails } }, // Push new variety to the array
+    { new: true, runValidators: true } // Return updated document and run validators
+  );
+
+  if (!updatedCollection) {
+    return next(new ErrorHandler('Failed to add variety', 500));
+  }
+
+  return res
+    .status(200)
+    .json({ data: updatedCollection, message: 'Variety Created Successfully', status: 'Success' });
 });
 
 const updateCollectionVariety = asyncHandler(async (req, res, next) => {
   const { files } = req;
   const { varietyId } = req.params;
 
-  const collection = await collectionModel.findOne({
-    'variety._id': varietyId,
-  });
+  console.log("files", files);
+  console.log("varietyId", varietyId);
+
+  // Check if the variety exists
+  const collection = await collectionModel.findOne({ 'variety._id': varietyId });
+  console.log("collection", collection);
+
   if (!collection) {
-    return next(new ErrorHandler('Collections not found', 404));
+    return next(new ErrorHandler('Collection not found', 404));
   }
 
   const varietyIndex = collection.variety.findIndex(
     (variety) => variety._id.toString() === varietyId,
   );
+  console.log("varietyIndex", varietyIndex);
+
   if (varietyIndex === -1) {
     return next(new ErrorHandler('Variety not found', 404));
   }
 
-  const fullSlabImageFile = files.find(
-    (item) => item.fieldname === 'fullSlabImage',
-  );
-  const varietyCardImageFile = files.find(
-    (item) => item.fieldname === 'varietyCardImage',
-  );
-  const closeLookUpFile = files.find(
-    (item) => item.fieldname === 'closeLookUp',
-  );
+  // Handle image uploads and updates
+  const fullSlabImageFile = files.find((item) => item.fieldname === 'fullSlabImage');
+  const varietyCardImageFile = files.find((item) => item.fieldname === 'varietyCardImage');
+  const closeLookUpFile = files.find((item) => item.fieldname === 'closeLookUp');
   const instalLookFile = files.find((item) => item.fieldname === 'instalLook');
-
-  let fullSlabImage;
-  let varietyCardImage;
-  let closeLookUp;
-  let instalLook;
 
   const varietyImages = collection.variety[varietyIndex];
 
-  if (fullSlabImageFile !== undefined) {
+  const updatedVarietyImgs = {};
+
+  if (fullSlabImageFile) {
     if (!isImage(fullSlabImageFile)) {
       return next(new ErrorHandler('Only images are allowed', 400));
     }
     const fileId = varietyImages.fullSlabImage;
-    const newFullSlab = await updateImageOnDrive(fileId, fullSlabImageFile);
-    fullSlabImage = newFullSlab;
-  } else {
-    fullSlabImage = varietyImages.fullSlabImage;
+    updatedVarietyImgs.fullSlabImage = await updateImageOnDrive(fileId, fullSlabImageFile);
   }
 
-  if (varietyCardImageFile !== undefined) {
+  if (varietyCardImageFile) {
     if (!isImage(varietyCardImageFile)) {
       return next(new ErrorHandler('Only images are allowed', 400));
     }
     const fileId = varietyImages.varietyCardImage;
-    const newVarietyCard = await updateImageOnDrive(
-      fileId,
-      varietyCardImageFile,
-    );
-    varietyCardImage = newVarietyCard;
-  } else {
-    varietyCardImage = varietyImages.varietyCardImage;
+    updatedVarietyImgs.varietyCardImage = await updateImageOnDrive(fileId, varietyCardImageFile);
   }
 
-  if (closeLookUpFile !== undefined) {
+  if (closeLookUpFile) {
     if (!isImage(closeLookUpFile)) {
       return next(new ErrorHandler('Only images are allowed', 400));
     }
     const fileId = varietyImages.closeLookUp;
-    const newCloseLookUp = await updateImageOnDrive(fileId, closeLookUpFile);
-    closeLookUp = newCloseLookUp;
-  } else {
-    closeLookUp = varietyImages.closeLookUp;
+    updatedVarietyImgs.closeLookUp = await updateImageOnDrive(fileId, closeLookUpFile);
   }
 
-  if (instalLookFile !== undefined) {
+  if (instalLookFile) {
     if (!isImage(instalLookFile)) {
       return next(new ErrorHandler('Only images are allowed', 400));
     }
     const fileId = varietyImages.instalLook;
-    const newInstalLook = await updateImageOnDrive(fileId, instalLookFile);
-    instalLook = newInstalLook;
-  } else {
-    instalLook = varietyImages.instalLook;
+    updatedVarietyImgs.instalLook = await updateImageOnDrive(fileId, instalLookFile);
   }
 
-  const updatedVarietyImgs = {
-    varietyCardImage,
-    fullSlabImage,
-    closeLookUp,
-    instalLook,
-  };
-  const {
-    varietyName, description, grip, mate, thickness,
-  } = req.body;
+  // Handle text updates
+  const { varietyName, description, grip, mate, thickness } = req.body;
 
   const updatedVarietyDetails = {};
 
-  if (varietyName.trim() !== '') {
+  if (varietyName && varietyName.trim()) {
     updatedVarietyDetails.varietyName = varietyName;
     updatedVarietyDetails.slug = createSlug(varietyName);
   }
-  if (description.trim() !== '') {
+  if (description && description.trim()) {
     updatedVarietyDetails.description = description;
   }
-  if (grip.trim() !== '') {
+  if (grip && grip.trim()) {
     updatedVarietyDetails.grip = grip;
   }
-  if (mate.trim() !== '') {
+  if (mate && mate.trim()) {
     updatedVarietyDetails.mate = mate;
   }
-  if (thickness.trim() !== '') {
+  if (thickness && thickness.trim()) {
     updatedVarietyDetails.thickness = thickness;
   }
 
-  if (updatedVarietyImgs.varietyCardImage !== undefined) {
-    updatedVarietyDetails.varietyCardImage = varietyCardImage;
-  }
-  if (updatedVarietyImgs.fullSlabImage !== undefined) {
-    updatedVarietyDetails.fullSlabImage = fullSlabImage;
-  }
-  if (updatedVarietyImgs.closeLookUp !== undefined) {
-    updatedVarietyDetails.closeLookUp = closeLookUp;
-  }
-  if (updatedVarietyImgs.instalLook !== undefined) {
-    updatedVarietyDetails.instalLook = instalLook;
-  }
-
-  delete updatedVarietyDetails._id;
-
-  collection.variety[varietyIndex] = {
-    ...collection.variety[varietyIndex].toObject(),
+  // Merge image updates with text updates
+  const updates = {
     ...updatedVarietyDetails,
+    ...updatedVarietyImgs,
   };
 
-  await collection.save();
-  const updatedVariety = collection.variety[varietyIndex];
+  // Perform the update using findOneAndUpdate to avoid validation issues
+  const updatedCollection = await collectionModel.findOneAndUpdate(
+    { 'variety._id': varietyId },
+    { $set: { 'variety.$': { ...collection.variety[varietyIndex].toObject(), ...updates } } },
+    { new: true, runValidators: true } // Return the updated document
+  );
+
+  if (!updatedCollection) {
+    return next(new ErrorHandler('Failed to update variety', 500));
+  }
+
+  const updatedVariety = updatedCollection.variety.find(
+    (variety) => variety._id.toString() === varietyId
+  );
+
   return res.status(200).json({ message: 'Variety Updated', status: 'Success', data: updatedVariety });
 });
 
+
 const deleteCollectionVariety = asyncHandler(async (req, res, next) => {
   const { varietyId } = req.params;
+
+  // Find the collection containing the variety
   const collection = await collectionModel.findOne({
     'variety._id': varietyId,
   });
 
   if (!collection) {
-    return next(new ErrorHandler('Collection variety Not Found', 400));
+    return next(new ErrorHandler('Collection variety not found', 404));
   }
 
+  // Find the variety to be deleted
   const findVariety = collection.variety.find((item) => item.id === varietyId);
-  const {
-    varietyCardImage, fullSlabImage, closeLookUp, instalLook, _id,
-  } = findVariety;
-
-  await deleteImage(varietyCardImage);
-  await deleteImage(fullSlabImage);
-  await deleteImage(closeLookUp);
-  await deleteImage(instalLook);
-
-  const varietyDelete = collection.variety.pull(_id);
-
-  if (!varietyDelete) {
-    return next(new ErrorHandler('variety Not Found', 400));
+  if (!findVariety) {
+    return next(new ErrorHandler('Variety not found', 404));
   }
 
-  await collection.save();
+  const { varietyCardImage, fullSlabImage, closeLookUp, instalLook } = findVariety;
+
+  // Delete associated images from storage
+  if (varietyCardImage) await deleteImage(varietyCardImage);
+  if (fullSlabImage) await deleteImage(fullSlabImage);
+  if (closeLookUp) await deleteImage(closeLookUp);
+  if (instalLook) await deleteImage(instalLook);
+
+  // Remove the variety from the collection using $pull
+  const updatedCollection = await collectionModel.findOneAndUpdate(
+    { 'variety._id': varietyId },
+    { $pull: { variety: { _id: varietyId } } }, // Pull the variety from the array
+    { new: true } // Return the updated collection
+  );
+
+  if (!updatedCollection) {
+    return next(new ErrorHandler('Failed to delete variety', 500));
+  }
 
   return res.status(200).json({ message: 'Variety Deleted Successfully', status: 'Success' });
 });
+
 
 const getCollectionVariety = asyncHandler(async (req, res, next) => {
   const { varietySlug } = req.params;
