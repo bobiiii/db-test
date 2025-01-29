@@ -187,19 +187,21 @@ const getCollections = asyncHandler(async (req, res, next) => {
 const addCollectionVariety = asyncHandler(async (req, res, next) => {
   const { collectionId } = req.params;
   const { files } = req;
-  const { varietyName, description, grip, mate, thickness } = req.body;
+  const {
+    varietyName, description, grip, mate, thickness,
+  } = req.body;
 
   // Check for required fields
   if (
-    !varietyName ||
-    !description ||
-    !grip ||
-    !mate ||
-    !thickness ||
-    !files.find((item) => item.fieldname === 'varietyCardImage') ||
-    !files.find((item) => item.fieldname === 'fullSlabImage') ||
-    !files.find((item) => item.fieldname === 'closeLookUp') ||
-    !files.find((item) => item.fieldname === 'instalLook')
+    !varietyName
+    || !description
+    || !grip
+    || !mate
+    || !thickness
+    || !files.find((item) => item.fieldname === 'varietyCardImage')
+    || !files.find((item) => item.fieldname === 'fullSlabImage')
+    || !files.find((item) => item.fieldname === 'closeLookUp')
+    || !files.find((item) => item.fieldname === 'instalLook')
   ) {
     return next(new ErrorHandler('Please fill all required fields', 400));
   }
@@ -211,7 +213,7 @@ const addCollectionVariety = asyncHandler(async (req, res, next) => {
   }
 
   const varietyExists = collection.variety.some(
-    (variety) => variety.varietyName.toLowerCase() === varietyName.toLowerCase()
+    (variety) => variety.varietyName.toLowerCase() === varietyName.toLowerCase(),
   );
   if (varietyExists) {
     return next(new ErrorHandler('Variety already exists', 400));
@@ -224,10 +226,10 @@ const addCollectionVariety = asyncHandler(async (req, res, next) => {
   const instalLook = files.find((item) => item.fieldname === 'instalLook');
 
   if (
-    !isImage(varietyCardImage) ||
-    !isImage(fullSlabImage) ||
-    !isImage(closeLookUp) ||
-    !isImage(instalLook)
+    !isImage(varietyCardImage)
+    || !isImage(fullSlabImage)
+    || !isImage(closeLookUp)
+    || !isImage(instalLook)
   ) {
     return next(new ErrorHandler('Only images are allowed', 400));
   }
@@ -259,7 +261,7 @@ const addCollectionVariety = asyncHandler(async (req, res, next) => {
   const updatedCollection = await collectionModel.findByIdAndUpdate(
     collectionId,
     { $push: { variety: varietyDetails } }, // Push new variety to the array
-    { new: true, runValidators: true } // Return updated document and run validators
+    { new: true, runValidators: true }, // Return updated document and run validators
   );
 
   if (!updatedCollection) {
@@ -275,12 +277,8 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
   const { files } = req;
   const { varietyId } = req.params;
 
-  console.log("files", files);
-  console.log("varietyId", varietyId);
-
   // Check if the variety exists
   const collection = await collectionModel.findOne({ 'variety._id': varietyId });
-  console.log("collection", collection);
 
   if (!collection) {
     return next(new ErrorHandler('Collection not found', 404));
@@ -289,8 +287,6 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
   const varietyIndex = collection.variety.findIndex(
     (variety) => variety._id.toString() === varietyId,
   );
-  console.log("varietyIndex", varietyIndex);
-
   if (varietyIndex === -1) {
     return next(new ErrorHandler('Variety not found', 404));
   }
@@ -338,13 +334,18 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
   }
 
   // Handle text updates
-  const { varietyName, description, grip, mate, thickness } = req.body;
+  const {
+    varietyName, description, grip, mate, thickness,
+  } = req.body;
+  // console.log('req body   .', varietyName, description, grip, mate, thickness);
 
   const updatedVarietyDetails = {};
 
   if (varietyName && varietyName.trim()) {
     updatedVarietyDetails.varietyName = varietyName;
     updatedVarietyDetails.slug = createSlug(varietyName);
+    // const alugauto = createSlug(varietyName);
+    // console.log(' alugauto', alugauto);
   }
   if (description && description.trim()) {
     updatedVarietyDetails.description = description;
@@ -365,24 +366,26 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
     ...updatedVarietyImgs,
   };
 
+  console.log('updates  ', updates);
+
   // Perform the update using findOneAndUpdate to avoid validation issues
   const updatedCollection = await collectionModel.findOneAndUpdate(
     { 'variety._id': varietyId },
     { $set: { 'variety.$': { ...collection.variety[varietyIndex].toObject(), ...updates } } },
-    { new: true, runValidators: true } // Return the updated document
+    { new: true, runValidators: true }, // Return the updated document
   );
+  console.log('updatedCollection  ', updatedCollection);
 
   if (!updatedCollection) {
     return next(new ErrorHandler('Failed to update variety', 500));
   }
 
   const updatedVariety = updatedCollection.variety.find(
-    (variety) => variety._id.toString() === varietyId
+    (variety) => variety._id.toString() === varietyId,
   );
 
   return res.status(200).json({ message: 'Variety Updated', status: 'Success', data: updatedVariety });
 });
-
 
 const deleteCollectionVariety = asyncHandler(async (req, res, next) => {
   const { varietyId } = req.params;
@@ -402,7 +405,9 @@ const deleteCollectionVariety = asyncHandler(async (req, res, next) => {
     return next(new ErrorHandler('Variety not found', 404));
   }
 
-  const { varietyCardImage, fullSlabImage, closeLookUp, instalLook } = findVariety;
+  const {
+    varietyCardImage, fullSlabImage, closeLookUp, instalLook,
+  } = findVariety;
 
   // Delete associated images from storage
   if (varietyCardImage) await deleteImage(varietyCardImage);
@@ -414,7 +419,7 @@ const deleteCollectionVariety = asyncHandler(async (req, res, next) => {
   const updatedCollection = await collectionModel.findOneAndUpdate(
     { 'variety._id': varietyId },
     { $pull: { variety: { _id: varietyId } } }, // Pull the variety from the array
-    { new: true } // Return the updated collection
+    { new: true }, // Return the updated collection
   );
 
   if (!updatedCollection) {
@@ -423,7 +428,6 @@ const deleteCollectionVariety = asyncHandler(async (req, res, next) => {
 
   return res.status(200).json({ message: 'Variety Deleted Successfully', status: 'Success' });
 });
-
 
 const getCollectionVariety = asyncHandler(async (req, res, next) => {
   const { varietySlug } = req.params;
