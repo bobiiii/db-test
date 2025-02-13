@@ -366,16 +366,14 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
     ...updatedVarietyImgs,
   };
 
-  console.log('updates  ', updates);
-
+  
   // Perform the update using findOneAndUpdate to avoid validation issues
   const updatedCollection = await collectionModel.findOneAndUpdate(
     { 'variety._id': varietyId },
     { $set: { 'variety.$': { ...collection.variety[varietyIndex].toObject(), ...updates } } },
     { new: true, runValidators: true }, // Return the updated document
   );
-  console.log('updatedCollection  ', updatedCollection);
-
+  
   if (!updatedCollection) {
     return next(new ErrorHandler('Failed to update variety', 500));
   }

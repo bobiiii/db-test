@@ -17,7 +17,7 @@ const colorsSchema = new mongooose.Schema({
   mainImage: {
     type: String,
   },
-});
+}, { timestamps: true });
 
 const kitchenSchema = new mongooose.Schema(
   {

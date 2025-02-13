@@ -14,7 +14,7 @@ const colorsSchema = new mongooose.Schema({
   mainImage: {
     type: String,
   },
-});
+}, { timestamps: true });
 
 const bathroomSchema = new mongooose.Schema(
   {

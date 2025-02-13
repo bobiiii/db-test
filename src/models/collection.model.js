@@ -33,7 +33,7 @@ const varietySchema = new mongooose.Schema({
   thickness: {
     type: String,
   },
-});
+}, { timestamps: true });
 
 const collectionSchema = new mongooose.Schema(
   {
