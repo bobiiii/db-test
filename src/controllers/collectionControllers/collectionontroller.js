@@ -366,14 +366,20 @@ const updateCollectionVariety = asyncHandler(async (req, res, next) => {
     ...updatedVarietyImgs,
   };
 
-  
+  const updateFields = Object.keys(updates).reduce((acc, key) => {
+    acc[`variety.$.${key}`] = updates[key]; // Creating dynamic field paths
+    return acc;
+  }, {});
+
   // Perform the update using findOneAndUpdate to avoid validation issues
   const updatedCollection = await collectionModel.findOneAndUpdate(
     { 'variety._id': varietyId },
-    { $set: { 'variety.$': { ...collection.variety[varietyIndex].toObject(), ...updates } } },
+    { $set: updateFields }, // Apply only the changed fields
+
+    // { $set: { 'variety.$': { ...collection.variety[varietyIndex].toObject(), ...updates } } },
     { new: true, runValidators: true }, // Return the updated document
   );
-  
+
   if (!updatedCollection) {
     return next(new ErrorHandler('Failed to update variety', 500));
   }
