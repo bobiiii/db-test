@@ -72,7 +72,7 @@ const getCollection = asyncHandler(async (req, res, next) => {
 const newArrivals = asyncHandler(async (req, res, next) => {
   const collections = await collectionModel.aggregate([
     { $unwind: '$variety' }, // Flatten variety arrays
-    { $sort: { 'variety.updatedAt': -1 } }, // Sort by variety creation date
+    { $sort: { 'variety.createdAt': -1 } }, // Sort by variety creation date
     { $limit: 15 },
     {
       $project: {
