@@ -22,6 +22,7 @@ app.use(
       'https://sharifstone.com',
       'https://www.sharifstone.com',
       'https://dashboard.sharifstone.com',
+      'https://sharif-stone-dashboard.vercel.app',
       // 'https://sharif-stone-dashboard.vercel.app',
       // 'https://master.d2u1pm0dta5ggo.amplifyapp.com',
       // 'https://sharif-stone-frontend.vercel.app',
