@@ -3,7 +3,13 @@ const Multer = require('multer');
 const { blogsControllers } = require('../../controllers');
 // const { adminRoutes } = require('../../middlewares');
 
-const upload = Multer();
+const upload = Multer({
+  storage: Multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10 MB max file size
+    fieldSize: 5 * 1024 * 1024, // 5 MB max for text fields like content
+  },
+});
 
 const blogRoute = express.Router();
 

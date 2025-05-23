@@ -4,7 +4,17 @@ const stream = require('stream');
 // const path = require('path');
 const { ErrorHandler } = require('../../utils/errorHandler');
 // eslint-disable-next-line no-unused-expressions, import/order
-const { nanoid } = require('nanoid');
+// const { nanoid } = require('nanoid');
+async function generateId() {
+  const { nanoid } = await import('nanoid');
+
+  return nanoid();
+}
+
+const nanoid = await generateId()
+
+// ya code is function k ander likhta to function k ander function ko kon call krta ha ?
+
 // eslint-disable-next-line no-unused-expressions
 require('buffer').Blob;
 
