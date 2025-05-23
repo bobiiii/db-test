@@ -1,5 +1,5 @@
 const userModel = require('./user.model');
-const blogModel = require('./blog.model');
+const BlogModel = require('./blog.model');
 const collectionModel = require('./collection.model');
 const AmbientModel = require('./ambient.model');
 const bathroomModel = require('./bathroom.model');
@@ -10,7 +10,7 @@ const MetadataModel = require('./metadata.model');
 
 module.exports = {
   userModel,
-  blogModel,
+  BlogModel,
   collectionModel,
   AmbientModel,
   bathroomModel,

@@ -1,65 +1,56 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-const mongooose = require('mongoose');
+const mongoose = require('mongoose');
 
-const blogSchema = new mongooose.Schema(
+const blogSchema = new mongoose.Schema(
   {
     title: {
       type: String,
       required: true,
       trim: true,
+      unique: true,
     },
     slug: {
       type: String,
       required: true,
-    },
-    date: {
-      type: Date,
-      required: true,
       trim: true,
     },
-    views: {
-      type: Number,
-      required: true,
-    },
+
     cardImage: {
       type: String,
       required: true,
     },
-    bannerImage: {
+    blogBannerImage: {
       type: String,
       required: true,
     },
-    headingOne: {
+
+    category: {
       type: String,
+      required: true,
+      trim: true,
+      enum: ['design', 'development', 'marketing'],
+    },
+
+    shortDesc: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    date: {
+      type: Date,
+      default: Date.now,
+    },
+
+    contentImageIds: {
+      type: [String],
       required: true,
     },
-    paragraphOne: {
+
+    content: {
       type: String,
       required: true,
-    },
-    imageOne: {
-      type: String,
-      required: true,
-    },
-    headingTwo: {
-      type: String,
-      required: true,
-    },
-    paragraphTwo: {
-      type: String,
-      required: true,
-    },
-    imageTwo: {
-      type: String,
-      required: true,
-    },
-    headingThree: {
-      type: String,
-      required: true,
-    },
-    paragraphThree: {
-      type: String,
-      required: true,
+      trim: true,
     },
   },
   {
@@ -67,6 +58,6 @@ const blogSchema = new mongooose.Schema(
   },
 );
 
-const blogModel = mongooose.model('blogs', blogSchema);
+const BlogModel = mongoose.model('Blogs', blogSchema);
 
-module.exports = blogModel;
+module.exports = BlogModel;

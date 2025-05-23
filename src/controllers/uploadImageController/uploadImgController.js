@@ -1,7 +1,10 @@
+/* eslint-disable import/no-extraneous-dependencies */
 const { google } = require('googleapis');
 const stream = require('stream');
 // const path = require('path');
 const { ErrorHandler } = require('../../utils/errorHandler');
+// eslint-disable-next-line no-unused-expressions, import/order
+const { nanoid } = require('nanoid');
 // eslint-disable-next-line no-unused-expressions
 require('buffer').Blob;
 
@@ -91,9 +94,67 @@ const deleteImage = async (imageRef) => {
 
 const isImage = (file) => file && file.mimetype.startsWith('image/');
 
+const uploadImageToDriveBlog = async (file, folder) => {
+  if (!file?.buffer) {
+    console.error('Error: Invalid image');
+    throw new ErrorHandler('Error ! Invalid Image', 500);
+  }
+  try {
+    const uniqueFileName = `${nanoid()}-${file.name}`;
+    const bufferStream = new stream.PassThrough();
+    bufferStream.end(file.buffer);
+
+    const { data } = await drive.files.create({
+      media: {
+        mimeType: file.mimetype,
+        body: bufferStream,
+      },
+      requestBody: {
+        name: uniqueFileName,
+        parents: [folder], // Set your folder ID in .env
+      },
+      fields: 'id', // Only return the file ID
+    });
+
+    return data.id; // Return the file ID
+  } catch (error) {
+    console.error('Error uploading image to Google Drive:', error);
+    throw new ErrorHandler('Error uploading image to Google Drive', 500);
+  }
+};
+
+const updateImageToDriveBlog = async (fileId, file) => {
+  if (!file?.buffer) {
+    console.error('Error: Invalid image');
+    throw new ErrorHandler('Error: Invalid image', 500);
+  }
+
+  try {
+    // const uniqueFileName = `${nanoid()}-${file.name}`;
+    const bufferStream = new stream.PassThrough();
+    bufferStream.end(file.buffer);
+
+    // Update the existing file with new content
+    await drive.files.update({
+      fileId,
+      media: { // Use 'media' instead of 'mediaBody'
+        body: bufferStream,
+        mimeType: file.mimetype,
+      },
+    });
+
+    return true;
+  } catch (error) {
+    console.error('Error updating image on Google Drive:', error);
+    throw new ErrorHandler('Error updating image on Google Drive', 500);
+  }
+};
+
 module.exports = {
   uploadImageToDrive,
   updateImageOnDrive,
   deleteImage,
   isImage,
+  uploadImageToDriveBlog,
+  updateImageToDriveBlog,
 };

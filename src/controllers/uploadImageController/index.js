@@ -1,5 +1,5 @@
 const {
-  uploadImageToDrive, updateImageOnDrive, deleteImage, isImage,
+  uploadImageToDrive, updateImageOnDrive, deleteImage, isImage, uploadImageToDriveBlog,
 } = require('./uploadImgController');
 
 module.exports = {
@@ -7,4 +7,5 @@ module.exports = {
   updateImageOnDrive,
   deleteImage,
   isImage,
+  uploadImageToDriveBlog,
 };
