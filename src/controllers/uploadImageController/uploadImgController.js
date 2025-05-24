@@ -1,25 +1,18 @@
 /* eslint-disable import/no-extraneous-dependencies */
 const { google } = require('googleapis');
 const stream = require('stream');
-// const path = require('path');
+const multer = require('multer');
 const { ErrorHandler } = require('../../utils/errorHandler');
-// eslint-disable-next-line no-unused-expressions, import/order
-// const { nanoid } = require('nanoid');
-async function generateId() {
-  const { nanoid } = await import('nanoid');
 
-  return nanoid();
-}
+// Setup multer memory storage with file size limits
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10 MB file size limit
+    fieldSize: 5 * 1024 * 1024,  // 5 MB for text fields if any
+  },
+});
 
-const nanoid = await generateId()
-
-// ya code is function k ander likhta to function k ander function ko kon call krta ha ?
-
-// eslint-disable-next-line no-unused-expressions
-require('buffer').Blob;
-
-// const dir = process.cwd();
-// const KEYFILEPATH = path.join(dir, '/credentials.json');
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
 const auth = new google.auth.GoogleAuth({
@@ -37,15 +30,25 @@ const drive = google.drive({
   auth,
 });
 
-// upload Image ======
+// Function to generate nanoid dynamically
+const generateNanoId = async () => {
+  const { nanoid } = await import('nanoid');
+  return nanoid();
+};
+
+// Upload image to drive
 const uploadImageToDrive = async (dynamicParameter) => {
+  const nanoid = await generateNanoId();
+
   if (!dynamicParameter.buffer) {
     console.error('Error: Invalid file object');
     return null;
   }
+
   try {
     const bufferImage = new stream.PassThrough();
     bufferImage.end(dynamicParameter.buffer);
+
     const { data } = await drive.files.create({
       media: {
         mimeType: dynamicParameter.mimetype,
@@ -110,7 +113,8 @@ const uploadImageToDriveBlog = async (file, folder) => {
     throw new ErrorHandler('Error ! Invalid Image', 500);
   }
   try {
-    const uniqueFileName = `${nanoid()}-${file.name}`;
+    const nanoid = await generateNanoId();
+    const uniqueFileName = `${nanoid}-${file.originalname}`;
     const bufferStream = new stream.PassThrough();
     bufferStream.end(file.buffer);
 
@@ -121,12 +125,12 @@ const uploadImageToDriveBlog = async (file, folder) => {
       },
       requestBody: {
         name: uniqueFileName,
-        parents: [folder], // Set your folder ID in .env
+        parents: [folder],
       },
-      fields: 'id', // Only return the file ID
+      fields: 'id',
     });
 
-    return data.id; // Return the file ID
+    return data.id;
   } catch (error) {
     console.error('Error uploading image to Google Drive:', error);
     throw new ErrorHandler('Error uploading image to Google Drive', 500);
@@ -140,14 +144,12 @@ const updateImageToDriveBlog = async (fileId, file) => {
   }
 
   try {
-    // const uniqueFileName = `${nanoid()}-${file.name}`;
     const bufferStream = new stream.PassThrough();
     bufferStream.end(file.buffer);
 
-    // Update the existing file with new content
     await drive.files.update({
       fileId,
-      media: { // Use 'media' instead of 'mediaBody'
+      media: {
         body: bufferStream,
         mimeType: file.mimetype,
       },
@@ -161,6 +163,7 @@ const updateImageToDriveBlog = async (fileId, file) => {
 };
 
 module.exports = {
+  upload,
   uploadImageToDrive,
   updateImageOnDrive,
   deleteImage,
