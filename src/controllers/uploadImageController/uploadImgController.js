@@ -1,17 +1,17 @@
 /* eslint-disable import/no-extraneous-dependencies */
 const { google } = require('googleapis');
 const stream = require('stream');
-const multer = require('multer');
+// const multer = require('multer');
 const { ErrorHandler } = require('../../utils/errorHandler');
 
 // Setup multer memory storage with file size limits
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10 MB file size limit
-    fieldSize: 5 * 1024 * 1024,  // 5 MB for text fields if any
-  },
-});
+// const upload = multer({
+//   storage: multer.memoryStorage(),
+//   limits: {
+//     fileSize: 10 * 1024 * 1024, // 10 MB file size limit
+//     fieldSize: 5 * 1024 * 1024,  // 5 MB for text fields if any
+//   },
+// });
 
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
@@ -38,7 +38,7 @@ const generateNanoId = async () => {
 
 // Upload image to drive
 const uploadImageToDrive = async (dynamicParameter) => {
-  const nanoid = await generateNanoId();
+  // const nanoid = await generateNanoId();
 
   if (!dynamicParameter.buffer) {
     console.error('Error: Invalid file object');
@@ -163,7 +163,6 @@ const updateImageToDriveBlog = async (fileId, file) => {
 };
 
 module.exports = {
-  upload,
   uploadImageToDrive,
   updateImageOnDrive,
   deleteImage,

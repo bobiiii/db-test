@@ -6,8 +6,8 @@ const { blogsControllers } = require('../../controllers');
 const upload = Multer({
   storage: Multer.memoryStorage(),
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10 MB max file size
-    fieldSize: 5 * 1024 * 1024, // 5 MB max for text fields like content
+    fileSize: 15 * 1024 * 1024, // 10 MB max file size
+    fieldSize: 10 * 1024 * 1024, // 5 MB max for text fields like content
   },
 });
 
